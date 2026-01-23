@@ -5,10 +5,15 @@ using Payments.Domain.Interfaces;
 
 namespace Payments.Domain.Repositories;
 
+/// <summary>
+/// Repository implementation for payment operations.
+/// </summary>
+/// <param name="context">The payments database context.</param>
 public class PaymentRepository(PaymentsDbContext context) : AbstractRepository<Payment>(context), IPaymentRepository
 {
     private readonly PaymentsDbContext _context = context;
 
+    /// <inheritdoc/>
     public async Task<IEnumerable<Payment>> GetPaymentsByUserIdAsync(Guid userId)
     {
         return await _context.Payments
@@ -17,6 +22,7 @@ public class PaymentRepository(PaymentsDbContext context) : AbstractRepository<P
             .ToListAsync();
     }
 
+    /// <inheritdoc/>
     public async Task<IEnumerable<Payment>> GetPaymentsByCourseIdAsync(Guid courseId)
     {
         return await _context.Payments
@@ -25,6 +31,7 @@ public class PaymentRepository(PaymentsDbContext context) : AbstractRepository<P
             .ToListAsync();
     }
 
+    /// <inheritdoc/>
     public async Task<Payment?> GetPaymentWithTransactionsAsync(Guid paymentId)
     {
         return await _context.Payments
@@ -32,6 +39,7 @@ public class PaymentRepository(PaymentsDbContext context) : AbstractRepository<P
             .FirstOrDefaultAsync(p => p.Id == paymentId);
     }
 
+    /// <inheritdoc/>
     public async Task<IEnumerable<Payment>> GetPaymentsByStatusAsync(string status)
     {
         return await _context.Payments
