@@ -8,17 +8,18 @@ import { Cart } from './cart/cart';
 import { Orders } from './orders/orders';
 import { SigninComponent } from './signin/signin';
 import { RegisterComponent } from './register/register';
+import { authGuard, guestGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/courses', pathMatch: 'full' },
-  { path: 'courses', component: CoursesList },
-  { path: 'lessons', component: LessonsList },
-  { path: 'homeworks', component: HomeworksList },
-  { path: 'assignments', component: AssignmentsList },
-  { path: 'calendar', component: CalendarList },
-  { path: 'cart', component: Cart },
-  { path: 'orders', component: Orders },
-  { path: 'signin', component: SigninComponent },
-  { path: 'register', component: RegisterComponent }
+  { path: 'courses', component: CoursesList, canActivate: [authGuard] },
+  { path: 'lessons', component: LessonsList, canActivate: [authGuard] },
+  { path: 'homeworks', component: HomeworksList, canActivate: [authGuard] },
+  { path: 'assignments', component: AssignmentsList, canActivate: [authGuard] },
+  { path: 'calendar', component: CalendarList, canActivate: [authGuard] },
+  { path: 'cart', component: Cart, canActivate: [authGuard] },
+  { path: 'orders', component: Orders, canActivate: [authGuard] },
+  { path: 'signin', component: SigninComponent, canActivate: [guestGuard] },
+  { path: 'register', component: RegisterComponent, canActivate: [guestGuard] }
 ];
 

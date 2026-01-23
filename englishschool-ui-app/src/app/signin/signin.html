@@ -79,7 +79,17 @@
           <a routerLink="/forgot-password" class="forgot-link">Forget password?</a>
         </div>
 
-        <button type="submit" class="signin-btn">Sign In</button>
+        @if (errorMessage) {
+          <div class="error-message">{{ errorMessage }}</div>
+        }
+
+        <button type="submit" class="signin-btn" [disabled]="isLoading">
+          @if (isLoading) {
+            Signing in...
+          } @else {
+            Sign In
+          }
+        </button>
       </form>
 
       <p class="signup-text">

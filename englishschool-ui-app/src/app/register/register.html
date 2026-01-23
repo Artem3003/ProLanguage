@@ -38,12 +38,23 @@
         <div class="form-group">
           <input
             type="text"
-            id="name"
-            [(ngModel)]="name"
-            name="name"
-            placeholder="Name"
+            id="firstName"
+            [(ngModel)]="firstName"
+            name="firstName"
+            placeholder="First Name"
             class="form-input"
             required
+          />
+        </div>
+
+        <div class="form-group">
+          <input
+            type="text"
+            id="lastName"
+            [(ngModel)]="lastName"
+            name="lastName"
+            placeholder="Last Name"
+            class="form-input"
           />
         </div>
 
@@ -56,6 +67,17 @@
             placeholder="Email"
             class="form-input"
             required
+          />
+        </div>
+
+        <div class="form-group">
+          <input
+            type="tel"
+            id="phone"
+            [(ngModel)]="phone"
+            name="phone"
+            placeholder="Phone"
+            class="form-input"
           />
         </div>
 
@@ -105,7 +127,17 @@
           </button>
         </div>
 
-        <button type="submit" class="register-btn">Create an account</button>
+        @if (errorMessage) {
+          <div class="error-message">{{ errorMessage }}</div>
+        }
+
+        <button type="submit" class="register-btn" [disabled]="isLoading">
+          @if (isLoading) {
+            Creating account...
+          } @else {
+            Create an account
+          }
+        </button>
       </form>
 
       <p class="signin-text">
@@ -114,3 +146,20 @@
     </div>
   </div>
 </div>
+
+<!-- Success Registration Popup -->
+@if (showSuccessPopup) {
+  <div class="popup-overlay" (click)="closeSuccessPopup()">
+    <div class="popup-content" (click)="$event.stopPropagation()">
+      <div class="popup-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <h2 class="popup-title">Registration Successful!</h2>
+      <p class="popup-message">Your account has been created successfully. You can now sign in to access all features.</p>
+      <button class="popup-btn" (click)="closeSuccessPopup()">Continue to Sign In</button>
+    </div>
+  </div>
+}

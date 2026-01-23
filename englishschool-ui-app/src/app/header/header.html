@@ -12,8 +12,13 @@
     </nav>
 
     <div class="auth-buttons">
-      <a routerLink="/signin" class="btn btn-signin">Sign in</a>
-      <a routerLink="/register" class="btn btn-register">Register</a>
+      @if (authService.isAuthenticated()) {
+        <span class="user-greeting">Hello, {{ (authService.currentUser$ | async)?.firstName }}</span>
+        <button (click)="logout()" class="btn btn-logout">Logout</button>
+      } @else {
+        <a routerLink="/signin" class="btn btn-signin">Sign in</a>
+        <a routerLink="/register" class="btn btn-register">Register</a>
+      }
     </div>
   </div>
 </header>
