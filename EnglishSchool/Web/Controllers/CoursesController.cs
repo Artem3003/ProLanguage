@@ -1,5 +1,6 @@
 using Application.DTOs.Course;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Web.Controllers;
@@ -7,6 +8,7 @@ namespace Web.Controllers;
 [ApiController]
 [Route("[controller]")]
 [Tags("Courses Management")]
+[Authorize]
 public class CoursesController(ICourseService courseService, IOrderService orderService) : ControllerBase
 {
     private readonly ICourseService _courseService = courseService;

@@ -1,5 +1,6 @@
 using Application.DTOs.Homework;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Web.Controllers;
@@ -7,6 +8,7 @@ namespace Web.Controllers;
 [ApiController]
 [Route("[controller]")]
 [Tags("Homework Management")]
+[Authorize]
 public class HomeworksController(IHomeworkService homeworkService) : ControllerBase
 {
     private readonly IHomeworkService _homeworkService = homeworkService;

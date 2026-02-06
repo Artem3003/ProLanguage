@@ -1,5 +1,6 @@
 using Application.DTOs.CalendarEvent;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Web.Controllers;
@@ -7,6 +8,7 @@ namespace Web.Controllers;
 [ApiController]
 [Route("[controller]")]
 [Tags("Calendar Events")]
+[Authorize]
 public class CalendarController(ICalendarEventService calendarEventService) : ControllerBase
 {
     private readonly ICalendarEventService _calendarEventService = calendarEventService;
