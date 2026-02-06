@@ -14,6 +14,7 @@ public class HomeworksController(IHomeworkService homeworkService) : ControllerB
     private readonly IHomeworkService _homeworkService = homeworkService;
 
     [HttpPost]
+    [Authorize(Policy = "ContentManagement")]
     public async Task<ActionResult<Guid>> CreateHomework([FromBody] CreateHomeworkDto request)
     {
         var homeworkId = await _homeworkService.CreateHomeworkAsync(request);
@@ -21,6 +22,7 @@ public class HomeworksController(IHomeworkService homeworkService) : ControllerB
     }
 
     [HttpGet("{id}")]
+    [Authorize(Policy = "StudentAccess")]
     public async Task<ActionResult<HomeworkDto>> GetHomeworkById(Guid id)
     {
         var homework = await _homeworkService.GetHomeworkByIdAsync(id);
@@ -28,6 +30,7 @@ public class HomeworksController(IHomeworkService homeworkService) : ControllerB
     }
 
     [HttpGet]
+    [Authorize(Policy = "StudentAccess")]
     public async Task<ActionResult<IEnumerable<HomeworkDto>>> GetAllHomeworks()
     {
         var homeworks = await _homeworkService.GetAllHomeworksAsync();
@@ -35,6 +38,7 @@ public class HomeworksController(IHomeworkService homeworkService) : ControllerB
     }
 
     [HttpPut]
+    [Authorize(Policy = "ContentManagement")]
     public async Task<ActionResult> UpdateHomework([FromBody] UpdateHomeworkDto request)
     {
         await _homeworkService.UpdateHomeworkAsync(request);
@@ -42,6 +46,7 @@ public class HomeworksController(IHomeworkService homeworkService) : ControllerB
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Policy = "ContentManagement")]
     public async Task<ActionResult> DeleteHomework(Guid id)
     {
         await _homeworkService.DeleteHomeworkAsync(id);

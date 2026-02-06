@@ -51,7 +51,18 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization();
+// Authorization policies for role-based access control
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("ContentManagement", policy =>
+        policy.RequireRole("Administrator", "Manager", "Teacher"))
+    .AddPolicy("TeacherAccess", policy =>
+        policy.RequireRole("Administrator", "Manager", "Teacher"))
+    .AddPolicy("GradingAccess", policy =>
+        policy.RequireRole("Administrator", "Teacher"))
+    .AddPolicy("StudentAccess", policy =>
+        policy.RequireRole("Administrator", "Manager", "Teacher", "Student"))
+    .AddPolicy("AdminOnly", policy =>
+        policy.RequireRole("Administrator"));
 
 // Database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

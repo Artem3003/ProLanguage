@@ -15,6 +15,7 @@ public class CoursesController(ICourseService courseService, IOrderService order
     private readonly IOrderService _orderService = orderService;
 
     [HttpPost]
+    [Authorize(Policy = "ContentManagement")]
     public async Task<ActionResult<Guid>> CreateCourse([FromBody] CreateCourseDto request)
     {
         var courseId = await _courseService.CreateCourseAsync(request);
@@ -50,6 +51,7 @@ public class CoursesController(ICourseService courseService, IOrderService order
     }
 
     [HttpPut]
+    [Authorize(Policy = "ContentManagement")]
     public async Task<ActionResult> UpdateCourse([FromBody] UpdateCourseDto request)
     {
         await _courseService.UpdateCourseAsync(request);
@@ -57,6 +59,7 @@ public class CoursesController(ICourseService courseService, IOrderService order
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Policy = "ContentManagement")]
     public async Task<ActionResult> DeleteCourse(Guid id)
     {
         await _courseService.DeleteCourseAsync(id);

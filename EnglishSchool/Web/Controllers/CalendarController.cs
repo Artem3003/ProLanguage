@@ -14,6 +14,7 @@ public class CalendarController(ICalendarEventService calendarEventService) : Co
     private readonly ICalendarEventService _calendarEventService = calendarEventService;
 
     [HttpGet]
+    [Authorize(Policy = "StudentAccess")]
     public async Task<ActionResult<IEnumerable<CalendarEventDto>>> GetAllEvents()
     {
         var events = await _calendarEventService.GetAllEventsAsync();
@@ -21,6 +22,7 @@ public class CalendarController(ICalendarEventService calendarEventService) : Co
     }
 
     [HttpPost]
+    [Authorize(Policy = "StudentAccess")]
     public async Task<ActionResult<Guid>> CreateEvent([FromBody] CreateCalendarEventDto request)
     {
         var eventId = await _calendarEventService.CreateEventAsync(request);
@@ -28,6 +30,7 @@ public class CalendarController(ICalendarEventService calendarEventService) : Co
     }
 
     [HttpGet("{id}")]
+    [Authorize(Policy = "StudentAccess")]
     public async Task<ActionResult<CalendarEventDto>> GetEventById(Guid id)
     {
         var calendarEvent = await _calendarEventService.GetEventByIdAsync(id);
@@ -35,6 +38,7 @@ public class CalendarController(ICalendarEventService calendarEventService) : Co
     }
 
     [HttpPut]
+    [Authorize(Policy = "TeacherAccess")]
     public async Task<ActionResult> UpdateEvent([FromBody] UpdateCalendarEventDto request)
     {
         await _calendarEventService.UpdateEventAsync(request);
@@ -42,6 +46,7 @@ public class CalendarController(ICalendarEventService calendarEventService) : Co
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Policy = "TeacherAccess")]
     public async Task<ActionResult> DeleteEvent(Guid id)
     {
         await _calendarEventService.DeleteEventAsync(id);
