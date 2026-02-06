@@ -24,7 +24,10 @@ public class TokenService(IConfiguration configuration) : ITokenService
         var audience = jwtSettings["Audience"];
         var expirationMinutes = int.Parse(jwtSettings["AccessTokenExpirationMinutes"] ?? "60");
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+        {
+            KeyId = "EnglishSchoolSigningKey",
+        };
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new List<Claim>

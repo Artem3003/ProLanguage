@@ -161,6 +161,34 @@ public class AuthController(IAuthService authService) : ControllerBase
         return Ok(new { message = "Logged out successfully." });
     }
 
+    /// <summary>
+    /// Authenticates a user using an external provider (Google, Apple, etc.).
+    /// </summary>
+    /// <param name="request">The external login request containing provider and ID token.</param>
+    /// <returns>The authentication response with tokens.</returns>
+    /// <response code="200">Login successful.</response>
+    /// <response code="400">Invalid request or token.</response>
+    /// <response code="401">Account deactivated.</response>
+    [HttpPost("external-login")]
+    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<AuthResponseDto>> ExternalLogin([FromBody] ExternalLoginDto request)
+    {
+        var ipAddress = GetIpAddress();
+        var result = await _authService.ExternalLoginAsync(request, ipAddress);
+
+        if (!result.IsSuccess)
+        {
+            return result.ErrorMessage?.Contains("deactivated") == true
+                ? (ActionResult<AuthResponseDto>)Unauthorized(result)
+                : (ActionResult<AuthResponseDto>)BadRequest(result);
+        }
+
+        SetRefreshTokenCookie(result.RefreshToken);
+        return Ok(result);
+    }
+
     private string? GetIpAddress()
     {
         return Request.Headers.TryGetValue("X-Forwarded-For", out Microsoft.Extensions.Primitives.StringValues value)

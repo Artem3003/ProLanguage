@@ -1,10 +1,14 @@
+using System.IdentityModel.Tokens.Jwt;
 using Auth.Application.DTOs;
 using Auth.Application.Interfaces;
 using Auth.Domain.Data;
 using Auth.Domain.Entities;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Auth.Application.Services;
 
@@ -15,12 +19,14 @@ namespace Auth.Application.Services;
 /// <param name="signInManager">The sign-in manager.</param>
 /// <param name="tokenService">The token service.</param>
 /// <param name="context">The database context.</param>
+/// <param name="configuration">The configuration.</param>
 /// <param name="logger">The logger.</param>
 public class AuthService(
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager,
     ITokenService tokenService,
     AuthDbContext context,
+    IConfiguration configuration,
     ILogger<AuthService> logger) : IAuthService
 {
     /// <inheritdoc />
@@ -80,7 +86,9 @@ public class AuthService(
         var (accessToken, expiration) = tokenService.GenerateAccessToken(user, roles);
         var refreshToken = tokenService.GenerateRefreshToken(ipAddress);
 
-        user.RefreshTokens.Add(refreshToken);
+        // Add refresh token directly to context with UserId set
+        refreshToken.UserId = user.Id;
+        context.RefreshTokens.Add(refreshToken);
         await context.SaveChangesAsync();
 
         return new AuthResponseDto
@@ -149,11 +157,12 @@ public class AuthService(
         var (accessToken, expiration) = tokenService.GenerateAccessToken(user, roles);
         var refreshToken = tokenService.GenerateRefreshToken(ipAddress);
 
-        // Remove old refresh tokens
+        // Remove old expired refresh tokens
         await RemoveOldRefreshTokensAsync(user.Id);
 
-        user.RefreshTokens.Add(refreshToken);
-        user.UpdatedAt = DateTime.UtcNow;
+        // Add refresh token directly to context
+        refreshToken.UserId = user.Id;
+        context.RefreshTokens.Add(refreshToken);
         await context.SaveChangesAsync();
 
         logger.LogInformation("User {Email} logged in successfully", request.Email);
@@ -228,7 +237,10 @@ public class AuthService(
         var newRefreshToken = tokenService.GenerateRefreshToken(ipAddress);
 
         refreshToken.ReplacedByToken = newRefreshToken.Token;
-        user.RefreshTokens.Add(newRefreshToken);
+
+        // Add new refresh token directly to context
+        newRefreshToken.UserId = user.Id;
+        context.RefreshTokens.Add(newRefreshToken);
 
         await context.SaveChangesAsync();
 
@@ -297,12 +309,253 @@ public class AuthService(
         return true;
     }
 
+    /// <inheritdoc />
+    public async Task<AuthResponseDto> ExternalLoginAsync(ExternalLoginDto request, string? ipAddress)
+    {
+        logger.LogInformation("External login attempt with provider: {Provider}", request.Provider);
+
+        if (string.IsNullOrWhiteSpace(request.Provider) || string.IsNullOrWhiteSpace(request.IdToken))
+        {
+            return new AuthResponseDto
+            {
+                IsSuccess = false,
+                ErrorMessage = "Provider and ID token are required.",
+            };
+        }
+
+        // Validate token based on provider
+        ExternalUserInfo? userInfo;
+        if (request.Provider.Equals("Google", StringComparison.OrdinalIgnoreCase))
+        {
+            userInfo = await ValidateGoogleTokenAsync(request.IdToken);
+        }
+        else if (request.Provider.Equals("Apple", StringComparison.OrdinalIgnoreCase))
+        {
+            userInfo = await ValidateAppleTokenAsync(request.IdToken);
+        }
+        else
+        {
+            return new AuthResponseDto
+            {
+                IsSuccess = false,
+                ErrorMessage = "Unsupported authentication provider.",
+            };
+        }
+
+        if (userInfo == null)
+        {
+            return new AuthResponseDto
+            {
+                IsSuccess = false,
+                ErrorMessage = $"Invalid {request.Provider} token.",
+            };
+        }
+
+        // For Apple, use the name from request if provided (only sent on first authorization)
+        if (request.Provider.Equals("Apple", StringComparison.OrdinalIgnoreCase))
+        {
+            if (!string.IsNullOrWhiteSpace(request.FirstName))
+            {
+                userInfo.FirstName = request.FirstName;
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.LastName))
+            {
+                userInfo.LastName = request.LastName;
+            }
+        }
+
+        // Check if user exists
+        var user = await userManager.FindByEmailAsync(userInfo.Email);
+        if (user == null)
+        {
+            // Create new user from external account
+            user = new ApplicationUser
+            {
+                UserName = userInfo.Email,
+                Email = userInfo.Email,
+                EmailConfirmed = userInfo.EmailVerified,
+                FirstName = userInfo.FirstName,
+                LastName = userInfo.LastName,
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            var result = await userManager.CreateAsync(user);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                logger.LogWarning("External login user creation failed for {Email}: {Errors}", userInfo.Email, errors);
+                return new AuthResponseDto
+                {
+                    IsSuccess = false,
+                    ErrorMessage = errors,
+                };
+            }
+
+            // Add external login info
+            var loginInfo = new UserLoginInfo(request.Provider, userInfo.ProviderKey, request.Provider);
+            await userManager.AddLoginAsync(user, loginInfo);
+
+            // Assign default role
+            await userManager.AddToRoleAsync(user, "Student");
+
+            logger.LogInformation("New user {Email} created via {Provider} login", userInfo.Email, request.Provider);
+        }
+        else
+        {
+            // Check if user has this provider login linked
+            var logins = await userManager.GetLoginsAsync(user);
+            if (!logins.Any(l => l.LoginProvider == request.Provider && l.ProviderKey == userInfo.ProviderKey))
+            {
+                // Link external account to existing user
+                var loginInfo = new UserLoginInfo(request.Provider, userInfo.ProviderKey, request.Provider);
+                await userManager.AddLoginAsync(user, loginInfo);
+                logger.LogInformation("{Provider} login linked to existing user {Email}", request.Provider, userInfo.Email);
+            }
+
+            if (!user.IsActive)
+            {
+                logger.LogWarning("External login failed: user {Email} is deactivated", userInfo.Email);
+                return new AuthResponseDto
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "Your account has been deactivated. Please contact support.",
+                };
+            }
+        }
+
+        // Generate tokens
+        var roles = await userManager.GetRolesAsync(user);
+        var (accessToken, expiration) = tokenService.GenerateAccessToken(user, roles);
+        var refreshToken = tokenService.GenerateRefreshToken(ipAddress);
+
+        // Remove old expired refresh tokens
+        await RemoveOldRefreshTokensAsync(user.Id);
+
+        // Add refresh token directly to context
+        refreshToken.UserId = user.Id;
+        context.RefreshTokens.Add(refreshToken);
+        await context.SaveChangesAsync();
+
+        logger.LogInformation("User {Email} logged in via {Provider} successfully", user.Email, request.Provider);
+
+        return new AuthResponseDto
+        {
+            IsSuccess = true,
+            UserId = user.Id,
+            Email = user.Email!,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            AccessToken = accessToken,
+            RefreshToken = refreshToken.Token,
+            AccessTokenExpiration = expiration,
+            Roles = roles,
+        };
+    }
+
+    private async Task<ExternalUserInfo?> ValidateGoogleTokenAsync(string idToken)
+    {
+        try
+        {
+            var googleClientId = configuration["GoogleAuth:ClientId"];
+            if (string.IsNullOrEmpty(googleClientId))
+            {
+                logger.LogError("Google ClientId is not configured");
+                return null;
+            }
+
+            var settings = new GoogleJsonWebSignature.ValidationSettings
+            {
+                Audience = [googleClientId],
+            };
+
+            var payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
+
+            return payload == null || string.IsNullOrEmpty(payload.Email)
+                ? null
+                : new ExternalUserInfo
+                {
+                    Email = payload.Email,
+                    EmailVerified = payload.EmailVerified,
+                    FirstName = payload.GivenName ?? payload.Name?.Split(' ').FirstOrDefault() ?? "User",
+                    LastName = payload.FamilyName ?? payload.Name?.Split(' ').LastOrDefault() ?? string.Empty,
+                    ProviderKey = payload.Subject,
+                };
+        }
+        catch (InvalidJwtException ex)
+        {
+            logger.LogWarning("Invalid Google token: {Message}", ex.Message);
+            return null;
+        }
+    }
+
+    private async Task<ExternalUserInfo?> ValidateAppleTokenAsync(string idToken)
+    {
+        try
+        {
+            var appleClientId = configuration["AppleAuth:ClientId"];
+            if (string.IsNullOrEmpty(appleClientId))
+            {
+                logger.LogError("Apple ClientId is not configured");
+                return null;
+            }
+
+            // Get Apple's public keys
+            using var httpClient = new HttpClient();
+            var keysResponse = await httpClient.GetStringAsync("https://appleid.apple.com/auth/keys");
+            var jwks = new JsonWebKeySet(keysResponse);
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = "https://appleid.apple.com",
+                ValidateAudience = true,
+                ValidAudience = appleClientId,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKeys = jwks.Keys,
+            };
+
+            var principal = tokenHandler.ValidateToken(idToken, validationParameters, out var validatedToken);
+
+            if (validatedToken is not JwtSecurityToken jwtToken)
+            {
+                return null;
+            }
+
+            var email = jwtToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
+            var emailVerified = jwtToken.Claims.FirstOrDefault(c => c.Type == "email_verified")?.Value == "true";
+            var sub = jwtToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(sub))
+            {
+                logger.LogWarning("Apple token missing required claims");
+                return null;
+            }
+
+            // Apple doesn't provide name in subsequent logins, only on first authorization
+            // The name is passed separately in the authorization response
+            return new ExternalUserInfo
+            {
+                Email = email,
+                EmailVerified = emailVerified,
+                FirstName = "User",
+                LastName = string.Empty,
+                ProviderKey = sub,
+            };
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning("Invalid Apple token: {Message}", ex.Message);
+            return null;
+        }
+    }
+
     private async Task RemoveOldRefreshTokensAsync(Guid userId)
     {
-        var oldTokens = await context.RefreshTokens
-            .Where(rt => rt.UserId == userId && !rt.IsRevoked && rt.ExpiresAt <= DateTime.UtcNow)
-            .ToListAsync();
-
-        context.RefreshTokens.RemoveRange(oldTokens);
+        await context.RefreshTokens
+            .Where(rt => rt.UserId == userId && rt.RevokedAt == null && rt.ExpiresAt <= DateTime.UtcNow)
+            .ExecuteDeleteAsync();
     }
 }

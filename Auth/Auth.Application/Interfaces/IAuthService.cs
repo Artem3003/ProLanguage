@@ -46,4 +46,12 @@ public interface IAuthService
     /// <param name="ipAddress">The IP address of the client.</param>
     /// <returns>True if logout was successful.</returns>
     Task<bool> LogoutAsync(Guid userId, string? ipAddress);
+
+    /// <summary>
+    /// Authenticates a user using an external provider (Google, Apple, etc.).
+    /// </summary>
+    /// <param name="request">The external login request containing provider and ID token.</param>
+    /// <param name="ipAddress">The IP address of the client.</param>
+    /// <returns>The authentication response.</returns>
+    Task<AuthResponseDto> ExternalLoginAsync(ExternalLoginDto request, string? ipAddress);
 }
