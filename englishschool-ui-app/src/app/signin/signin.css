@@ -311,3 +311,13 @@
 .signup-link:hover {
   color: #f5c518;
 }
+
+/* Hide the Google rendered button - we use our custom button */
+.google-signin-container {
+  display: none;
+}
+
+.social-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

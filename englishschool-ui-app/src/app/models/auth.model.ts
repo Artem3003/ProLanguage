@@ -13,6 +13,13 @@ export interface RegisterRequest {
   phoneNumber?: string;
 }
 
+export interface ExternalLoginRequest {
+  provider: string;
+  idToken: string;
+  firstName?: string;
+  lastName?: string;
+}
+
 export interface AuthResponse {
   userId: string;
   email: string;

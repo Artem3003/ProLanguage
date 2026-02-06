@@ -2,7 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError, BehaviorSubject } from 'rxjs';
-import { AuthResponse, LoginRequest, RegisterRequest, RefreshTokenRequest, User } from '../models/auth.model';
+import { AuthResponse, LoginRequest, RegisterRequest, RefreshTokenRequest, ExternalLoginRequest, User } from '../models/auth.model';
 
 @Injectable({
   providedIn: 'root'
@@ -38,6 +38,19 @@ export class AuthService {
 
   register(request: RegisterRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, request).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
+  }
+
+  externalLogin(request: ExternalLoginRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/external-login`, request).pipe(
+      tap(response => {
+        if (response.isSuccess) {
+          this.setSession(response);
+        }
+      }),
       catchError(error => {
         return throwError(() => error);
       })

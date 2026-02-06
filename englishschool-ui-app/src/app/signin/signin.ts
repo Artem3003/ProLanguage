@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
+import { GoogleAuthService } from '../services/google-auth.service';
+import { AppleAuthService } from '../services/apple-auth.service';
 import { LoginRequest } from '../models/auth.model';
 
 @Component({
@@ -12,29 +14,80 @@ import { LoginRequest } from '../models/auth.model';
   templateUrl: './signin.html',
   styleUrl: './signin.css',
 })
-export class SigninComponent {
+export class SigninComponent implements AfterViewInit {
+  @ViewChild('googleButton') googleButtonRef!: ElementRef;
+
   email = '';
   password = '';
   rememberMe = true;
   showPassword = false;
   isLoading = false;
+  isGoogleLoading = false;
+  isAppleLoading = false;
   errorMessage = '';
   private returnUrl = '/courses';
 
   constructor(
     private authService: AuthService,
+    private googleAuthService: GoogleAuthService,
+    private appleAuthService: AppleAuthService,
     private router: Router,
     private route: ActivatedRoute
   ) {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/courses';
   }
 
+  ngAfterViewInit(): void {
+    // Initialize Google Sign-In button after view is ready
+    setTimeout(() => {
+      if (this.googleButtonRef?.nativeElement) {
+        this.googleAuthService.initializeGoogleSignIn(
+          this.googleButtonRef.nativeElement,
+          () => this.onGoogleSuccess(),
+          (error) => this.onGoogleError(error)
+        );
+      }
+    }, 100);
+  }
+
   onGoogleSignIn(): void {
-    console.log('Google Sign In clicked');
+    this.isGoogleLoading = true;
+    this.errorMessage = '';
+    this.googleAuthService.promptGoogleSignIn(
+      () => this.onGoogleSuccess(),
+      (error) => this.onGoogleError(error)
+    );
+  }
+
+  private onGoogleSuccess(): void {
+    this.isGoogleLoading = false;
+    this.router.navigate([this.returnUrl]);
+  }
+
+  private onGoogleError(error: string): void {
+    this.isGoogleLoading = false;
+    this.errorMessage = error;
   }
 
   onAppleSignIn(): void {
-    console.log('Apple Sign In clicked');
+    this.isAppleLoading = true;
+    this.errorMessage = '';
+    this.appleAuthService.signIn(
+      () => this.onAppleSuccess(),
+      (error) => this.onAppleError(error)
+    );
+  }
+
+  private onAppleSuccess(): void {
+    this.isAppleLoading = false;
+    this.router.navigate([this.returnUrl]);
+  }
+
+  private onAppleError(error: string): void {
+    this.isAppleLoading = false;
+    if (error) {
+      this.errorMessage = error;
+    }
   }
 
   togglePasswordVisibility(): void {
