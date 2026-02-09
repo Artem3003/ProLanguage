@@ -2,7 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError, BehaviorSubject } from 'rxjs';
-import { AuthResponse, LoginRequest, RegisterRequest, RefreshTokenRequest, ExternalLoginRequest, User } from '../models/auth.model';
+import { AuthResponse, LoginRequest, RegisterRequest, RefreshTokenRequest, ExternalLoginRequest, User, ForgotPasswordRequest, ResetPasswordRequest, PasswordResetResponse } from '../models/auth.model';
 
 @Injectable({
   providedIn: 'root'
@@ -157,5 +157,21 @@ export class AuthService {
   isInRole(...roles: string[]): boolean {
     const user = this.getCurrentUser();
     return roles.some(role => user?.roles?.includes(role));
+  }
+
+  forgotPassword(request: ForgotPasswordRequest): Observable<PasswordResetResponse> {
+    return this.http.post<PasswordResetResponse>(`${this.apiUrl}/forgot-password`, request).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
+  }
+
+  resetPassword(request: ResetPasswordRequest): Observable<PasswordResetResponse> {
+    return this.http.post<PasswordResetResponse>(`${this.apiUrl}/reset-password`, request).pipe(
+      catchError(error => {
+        return throwError(() => error);
+      })
+    );
   }
 }

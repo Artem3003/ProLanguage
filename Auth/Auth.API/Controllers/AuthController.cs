@@ -189,6 +189,40 @@ public class AuthController(IAuthService authService) : ControllerBase
         return Ok(result);
     }
 
+    /// <summary>
+    /// Initiates the password reset process.
+    /// </summary>
+    /// <param name="request">The forgot password request containing the email.</param>
+    /// <returns>Response indicating whether the request was successful.</returns>
+    /// <response code="200">Request processed successfully.</response>
+    /// <response code="400">Invalid request.</response>
+    [HttpPost("forgot-password")]
+    [ProducesResponseType(typeof(PasswordResetResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PasswordResetResponseDto), StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<PasswordResetResponseDto>> ForgotPassword([FromBody] ForgotPasswordDto request)
+    {
+        var result = await _authService.ForgotPasswordAsync(request);
+
+        return !result.IsSuccess ? BadRequest(result) : Ok(result);
+    }
+
+    /// <summary>
+    /// Resets the user's password using a reset token.
+    /// </summary>
+    /// <param name="request">The reset password request containing email, token, and new password.</param>
+    /// <returns>Response indicating whether the password was reset successfully.</returns>
+    /// <response code="200">Password reset successfully.</response>
+    /// <response code="400">Invalid request or token.</response>
+    [HttpPost("reset-password")]
+    [ProducesResponseType(typeof(PasswordResetResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PasswordResetResponseDto), StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<PasswordResetResponseDto>> ResetPassword([FromBody] ResetPasswordDto request)
+    {
+        var result = await _authService.ResetPasswordAsync(request);
+
+        return !result.IsSuccess ? BadRequest(result) : Ok(result);
+    }
+
     private string? GetIpAddress()
     {
         return Request.Headers.TryGetValue("X-Forwarded-For", out Microsoft.Extensions.Primitives.StringValues value)

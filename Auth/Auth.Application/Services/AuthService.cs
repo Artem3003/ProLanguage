@@ -20,6 +20,7 @@ namespace Auth.Application.Services;
 /// <param name="tokenService">The token service.</param>
 /// <param name="context">The database context.</param>
 /// <param name="configuration">The configuration.</param>
+/// <param name="emailService">The email service.</param>
 /// <param name="logger">The logger.</param>
 public class AuthService(
     UserManager<ApplicationUser> userManager,
@@ -27,6 +28,7 @@ public class AuthService(
     ITokenService tokenService,
     AuthDbContext context,
     IConfiguration configuration,
+    IEmailService emailService,
     ILogger<AuthService> logger) : IAuthService
 {
     /// <inheritdoc />
@@ -450,6 +452,125 @@ public class AuthService(
             RefreshToken = refreshToken.Token,
             AccessTokenExpiration = expiration,
             Roles = roles,
+        };
+    }
+
+    /// <inheritdoc />
+    public async Task<PasswordResetResponseDto> ForgotPasswordAsync(ForgotPasswordDto request)
+    {
+        logger.LogInformation("Password reset requested for email: {Email}", request.Email);
+
+        var user = await userManager.FindByEmailAsync(request.Email);
+        if (user == null)
+        {
+            // Don't reveal that the user doesn't exist for security
+            logger.LogWarning("Password reset requested for non-existent email: {Email}", request.Email);
+            return new PasswordResetResponseDto
+            {
+                IsSuccess = true,
+                Message = "If an account with that email exists, a password reset link has been sent.",
+            };
+        }
+
+        if (!user.IsActive)
+        {
+            logger.LogWarning("Password reset requested for deactivated account: {Email}", request.Email);
+            return new PasswordResetResponseDto
+            {
+                IsSuccess = true,
+                Message = "If an account with that email exists, a password reset link has been sent.",
+            };
+        }
+
+        // Generate password reset token using ASP.NET Core Identity
+        var token = await userManager.GeneratePasswordResetTokenAsync(user);
+
+        logger.LogInformation("Password reset token generated for user: {Email}", request.Email);
+
+        // Send password reset email
+        try
+        {
+            await emailService.SendPasswordResetEmailAsync(request.Email, token);
+            logger.LogInformation("Password reset email sent to: {Email}", request.Email);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to send password reset email to: {Email}", request.Email);
+            return new PasswordResetResponseDto
+            {
+                IsSuccess = false,
+                ErrorMessage = "Failed to send password reset email. Please try again later.",
+            };
+        }
+
+        return new PasswordResetResponseDto
+        {
+            IsSuccess = true,
+            Message = "If an account with that email exists, a password reset link has been sent.",
+        };
+    }
+
+    /// <inheritdoc />
+    public async Task<PasswordResetResponseDto> ResetPasswordAsync(ResetPasswordDto request)
+    {
+        logger.LogInformation("Password reset attempt for email: {Email}", request.Email);
+
+        var user = await userManager.FindByEmailAsync(request.Email);
+        if (user == null)
+        {
+            logger.LogWarning("Password reset failed: user {Email} not found", request.Email);
+            return new PasswordResetResponseDto
+            {
+                IsSuccess = false,
+                ErrorMessage = "Invalid request.",
+            };
+        }
+
+        if (!user.IsActive)
+        {
+            logger.LogWarning("Password reset failed: user {Email} is deactivated", request.Email);
+            return new PasswordResetResponseDto
+            {
+                IsSuccess = false,
+                ErrorMessage = "Your account has been deactivated. Please contact support.",
+            };
+        }
+
+        if (request.NewPassword != request.ConfirmPassword)
+        {
+            return new PasswordResetResponseDto
+            {
+                IsSuccess = false,
+                ErrorMessage = "Passwords do not match.",
+            };
+        }
+
+        // Reset the password using ASP.NET Core Identity
+        var result = await userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
+        if (!result.Succeeded)
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            logger.LogWarning("Password reset failed for {Email}: {Errors}", request.Email, errors);
+            return new PasswordResetResponseDto
+            {
+                IsSuccess = false,
+                ErrorMessage = errors.Contains("Invalid token") ? "The password reset link has expired or is invalid." : errors,
+            };
+        }
+
+        logger.LogInformation("Password reset successful for user: {Email}", request.Email);
+
+        // Revoke all refresh tokens for security
+        await context.RefreshTokens
+            .Where(rt => rt.UserId == user.Id && rt.RevokedAt == null)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(rt => rt.RevokedAt, DateTime.UtcNow)
+                .SetProperty(rt => rt.RevokedByIp, "PasswordReset"));
+
+        return new PasswordResetResponseDto
+        {
+            IsSuccess = true,
+            Message = "Your password has been reset successfully. You can now log in with your new password.",
         };
     }
 

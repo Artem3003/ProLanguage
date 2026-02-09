@@ -45,3 +45,21 @@ export interface User {
   lastName: string;
   roles: string[];
 }
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  token: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+export interface PasswordResetResponse {
+  isSuccess: boolean;
+  message?: string;
+  errorMessage?: string;
+  resetToken?: string;
+}

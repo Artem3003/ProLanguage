@@ -3,6 +3,8 @@ using Auth.Application.Interfaces;
 using Auth.Application.Services;
 using Auth.Domain.Data;
 using Auth.Domain.Entities;
+using Auth.Infrastructure.Services;
+using Auth.Infrastructure.Settings;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -106,6 +108,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<ITokenService, TokenService>();
+
+        // Email service
+        services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+        services.AddScoped<IEmailService, EmailService>();
 
         // FluentValidation
         services.AddFluentValidationAutoValidation();

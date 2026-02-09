@@ -54,4 +54,18 @@ public interface IAuthService
     /// <param name="ipAddress">The IP address of the client.</param>
     /// <returns>The authentication response.</returns>
     Task<AuthResponseDto> ExternalLoginAsync(ExternalLoginDto request, string? ipAddress);
+
+    /// <summary>
+    /// Initiates the password reset process by generating a reset token.
+    /// </summary>
+    /// <param name="request">The forgot password request.</param>
+    /// <returns>The password reset response.</returns>
+    Task<PasswordResetResponseDto> ForgotPasswordAsync(ForgotPasswordDto request);
+
+    /// <summary>
+    /// Resets the user's password using the reset token.
+    /// </summary>
+    /// <param name="request">The reset password request.</param>
+    /// <returns>The password reset response.</returns>
+    Task<PasswordResetResponseDto> ResetPasswordAsync(ResetPasswordDto request);
 }
