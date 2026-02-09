@@ -7,6 +7,13 @@ using Payments.Domain.Interfaces;
 
 namespace Payments.Application.Services;
 
+/// <summary>
+/// Service implementation for payment operations.
+/// </summary>
+/// <param name="paymentRepository">The payment repository.</param>
+/// <param name="transactionRepository">The transaction repository.</param>
+/// <param name="unitOfWork">The unit of work.</param>
+/// <param name="mapper">The AutoMapper instance.</param>
 public class PaymentService(
     IPaymentRepository paymentRepository,
     ITransactionRepository transactionRepository,
@@ -18,6 +25,7 @@ public class PaymentService(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
 
+    /// <inheritdoc/>
     public async Task<PaymentDto> CreatePaymentAsync(CreatePaymentDto createPaymentDto)
     {
         var payment = _mapper.Map<Payment>(createPaymentDto);
@@ -30,24 +38,28 @@ public class PaymentService(
         return _mapper.Map<PaymentDto>(payment);
     }
 
+    /// <inheritdoc/>
     public async Task<PaymentDto?> GetPaymentByIdAsync(Guid paymentId)
     {
         var payment = await _paymentRepository.GetPaymentWithTransactionsAsync(paymentId);
         return payment == null ? null : _mapper.Map<PaymentDto>(payment);
     }
 
+    /// <inheritdoc/>
     public async Task<IEnumerable<PaymentDto>> GetPaymentsByUserIdAsync(Guid userId)
     {
         var payments = await _paymentRepository.GetPaymentsByUserIdAsync(userId);
         return _mapper.Map<IEnumerable<PaymentDto>>(payments);
     }
 
+    /// <inheritdoc/>
     public async Task<IEnumerable<PaymentDto>> GetPaymentsByCourseIdAsync(Guid courseId)
     {
         var payments = await _paymentRepository.GetPaymentsByCourseIdAsync(courseId);
         return _mapper.Map<IEnumerable<PaymentDto>>(payments);
     }
 
+    /// <inheritdoc/>
     public async Task<PaymentDto> ProcessPaymentAsync(ProcessPaymentDto processPaymentDto)
     {
         var payment = await _paymentRepository.GetByIdAsync(processPaymentDto.PaymentId);
@@ -113,6 +125,7 @@ public class PaymentService(
         }
     }
 
+    /// <inheritdoc/>
     public async Task<PaymentDto> UpdatePaymentStatusAsync(UpdatePaymentStatusDto updateStatusDto)
     {
         var payment = await _paymentRepository.GetByIdAsync(updateStatusDto.PaymentId);
@@ -138,6 +151,7 @@ public class PaymentService(
         return _mapper.Map<PaymentDto>(payment);
     }
 
+    /// <inheritdoc/>
     public async Task<PaymentDto> RefundPaymentAsync(RefundPaymentDto refundDto)
     {
         var payment = await _paymentRepository.GetByIdAsync(refundDto.PaymentId);
@@ -187,12 +201,14 @@ public class PaymentService(
         }
     }
 
+    /// <inheritdoc/>
     public async Task<IEnumerable<PaymentDto>> GetAllPaymentsAsync()
     {
         var payments = await _paymentRepository.GetAllAsync();
         return _mapper.Map<IEnumerable<PaymentDto>>(payments);
     }
 
+    /// <inheritdoc/>
     public async Task<bool> DeletePaymentAsync(Guid paymentId)
     {
         var payment = await _paymentRepository.GetByIdAsync(paymentId);

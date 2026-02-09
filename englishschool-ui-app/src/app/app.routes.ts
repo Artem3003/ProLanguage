@@ -6,15 +6,24 @@ import { AssignmentsList } from './assignments-list/assignments-list';
 import { CalendarList } from './calendar-list/calendar-list';
 import { Cart } from './cart/cart';
 import { Orders } from './orders/orders';
+import { SigninComponent } from './signin/signin';
+import { RegisterComponent } from './register/register';
+import { ForgotPasswordComponent } from './forgot-password/forgot-password';
+import { ResetPasswordComponent } from './reset-password/reset-password';
+import { authGuard, guestGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/courses', pathMatch: 'full' },
-  { path: 'courses', component: CoursesList },
-  { path: 'lessons', component: LessonsList },
-  { path: 'homeworks', component: HomeworksList },
-  { path: 'assignments', component: AssignmentsList },
-  { path: 'calendar', component: CalendarList },
-  { path: 'cart', component: Cart },
-  { path: 'orders', component: Orders }
+  { path: 'courses', component: CoursesList, canActivate: [authGuard] },
+  { path: 'lessons', component: LessonsList, canActivate: [authGuard] },
+  { path: 'homeworks', component: HomeworksList, canActivate: [authGuard] },
+  { path: 'assignments', component: AssignmentsList, canActivate: [authGuard] },
+  { path: 'calendar', component: CalendarList, canActivate: [authGuard] },
+  { path: 'cart', component: Cart, canActivate: [authGuard] },
+  { path: 'orders', component: Orders, canActivate: [authGuard] },
+  { path: 'signin', component: SigninComponent, canActivate: [guestGuard] },
+  { path: 'register', component: RegisterComponent, canActivate: [guestGuard] },
+  { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [guestGuard] },
+  { path: 'reset-password', component: ResetPasswordComponent, canActivate: [guestGuard] }
 ];
 

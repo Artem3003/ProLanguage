@@ -3,12 +3,26 @@ using Payments.Domain.Entities;
 
 namespace Payments.Domain.Data;
 
+/// <summary>
+/// Database context for the Payments domain.
+/// </summary>
+/// <param name="options">The database context options.</param>
 public class PaymentsDbContext(DbContextOptions<PaymentsDbContext> options) : DbContext(options)
 {
+    /// <summary>
+    /// Gets or sets the payments collection.
+    /// </summary>
     public DbSet<Payment> Payments { get; set; }
-    
+
+    /// <summary>
+    /// Gets or sets the transactions collection.
+    /// </summary>
     public DbSet<Transaction> Transactions { get; set; }
 
+    /// <summary>
+    /// Configures the entity models.
+    /// </summary>
+    /// <param name="modelBuilder">The model builder.</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

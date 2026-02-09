@@ -1,5 +1,6 @@
 using Application.DTOs.Order;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Web.Controllers;
@@ -7,6 +8,7 @@ namespace Web.Controllers;
 [ApiController]
 [Route("[controller]")]
 [Tags("Orders Management")]
+[Authorize]
 public class OrdersController(IOrderService orderService) : ControllerBase
 {
     private readonly IOrderService _orderService = orderService;

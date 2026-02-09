@@ -4,8 +4,14 @@ using Payments.Application.DTOs.Transaction;
 
 namespace Payments.Application.Mappings;
 
+/// <summary>
+/// AutoMapper profile for payment and transaction mappings.
+/// </summary>
 public class MappingProfile : Profile
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MappingProfile"/> class.
+    /// </summary>
     public MappingProfile()
     {
         // Payment mappings

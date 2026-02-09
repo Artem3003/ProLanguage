@@ -1,21 +1,24 @@
-<div class="container">
-  <div class="sidebar">
-    <h1 class="title">
-      <a routerLink="/courses">English School</a>
-    </h1>
-    <nav>
-      <a routerLink="/courses" routerLinkActive="active">Courses</a>
-      <a routerLink="/lessons" routerLinkActive="active">Lessons</a>
-      <a routerLink="/homeworks" routerLinkActive="active">Homeworks</a>
-      <a routerLink="/assignments" routerLinkActive="active">Assignments</a>
-      <a routerLink="/calendar" routerLinkActive="active">Calendar</a>
-      <a routerLink="/orders" routerLinkActive="active">Orders</a>
-    </nav>
-  </div>
-  <main class="content">
-    <div class="header-bar">
-      <app-cart-icon></app-cart-icon>
+@if (isFullScreenRoute()) {
+  <router-outlet></router-outlet>
+} @else {
+  <app-header></app-header>
+  <div class="container">
+    <div class="sidebar">
+      <nav>
+        <a routerLink="/courses" routerLinkActive="active">Courses</a>
+        <a routerLink="/lessons" routerLinkActive="active">Lessons</a>
+        <a routerLink="/homeworks" routerLinkActive="active">Homeworks</a>
+        <a routerLink="/assignments" routerLinkActive="active">Assignments</a>
+        <a routerLink="/calendar" routerLinkActive="active">Calendar</a>
+        <a routerLink="/orders" routerLinkActive="active">Orders</a>
+      </nav>
     </div>
-    <router-outlet></router-outlet>
-  </main>
-</div>
+    <main class="content">
+      <div class="header-bar">
+        <app-cart-icon></app-cart-icon>
+      </div>
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+  <app-footer></app-footer>
+}

@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);SA1413;IDE0161;IDE0005;SA1633;SA1200;SA1101;CS1591</NoWarn>
+  </PropertyGroup>
+</Project>
