@@ -9,4 +9,8 @@ public interface ICourseRepository : IRepository<Course>
     Task<bool> TitleExistsAsync(string title, Guid? excludeId = null);
 
     Task<IEnumerable<Course>> GetAvailableCoursesAsync(Guid? excludeLessonId = null);
+
+    IQueryable<Course> GetQueryable();
+
+    Task IncrementViewCountAsync(Guid id);
 }

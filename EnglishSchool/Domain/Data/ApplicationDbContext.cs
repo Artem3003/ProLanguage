@@ -33,6 +33,14 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(e => e.Description).HasMaxLength(1000);
             entity.Property(e => e.Price).IsRequired();
             entity.Property(e => e.NumberOfLessons).IsRequired();
+            entity.Property(e => e.Language).IsRequired();
+            entity.Property(e => e.Level).IsRequired();
+            entity.Property(e => e.DurationMinutes).IsRequired();
+            entity.Property(e => e.Rating);
+            entity.Property(e => e.IsOnSale).IsRequired();
+            entity.Property(e => e.DiscountPrice);
+            entity.Property(e => e.ViewCount).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
         });
 
         // Lesson configuration

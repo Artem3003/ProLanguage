@@ -42,4 +42,20 @@ public class CourseRepository(ApplicationDbContext context) : AbstractRepository
             .Where(c => c.Lessons.Count < c.NumberOfLessons)
             .ToListAsync();
     }
+
+    public IQueryable<Course> GetQueryable()
+    {
+        return _context.Courses.AsQueryable();
+    }
+
+    public async Task IncrementViewCountAsync(Guid id)
+    {
+        var course = await _context.Courses.FindAsync(id);
+        if (course != null)
+        {
+            course.ViewCount++;
+            _context.Courses.Update(course);
+            await _context.SaveChangesAsync();
+        }
+    }
 }
