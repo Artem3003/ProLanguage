@@ -29,6 +29,15 @@ public class CoursesController(ICourseService courseService, IOrderService order
         return Ok(course);
     }
 
+    [HttpGet("{id}/detail")]
+    [ProducesResponseType(typeof(CourseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<CourseDto>> GetCourseDetail(Guid id)
+    {
+        var course = await _courseService.GetCourseDetailAsync(id);
+        return Ok(course);
+    }
+
     [HttpGet("by-title/{title}")]
     public async Task<ActionResult<CourseDto>> GetCourseByTitle(string title)
     {
@@ -41,6 +50,31 @@ public class CoursesController(ICourseService courseService, IOrderService order
     {
         var courses = await _courseService.GetAllCoursesAsync();
         return Ok(courses);
+    }
+
+    [HttpGet("filter")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(CourseFilterResultDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<CourseFilterResultDto>> GetFilteredCourses([FromQuery] CourseFilterDto filter)
+    {
+        var result = await _courseService.GetFilteredCoursesAsync(filter);
+        return Ok(result);
+    }
+
+    [HttpGet("filter/options")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(CourseFilterOptionsDto), StatusCodes.Status200OK)]
+    public ActionResult<CourseFilterOptionsDto> GetFilterOptions()
+    {
+        var options = new CourseFilterOptionsDto
+        {
+            PaginationOptions = _courseService.GetPaginationOptions(),
+            SortingOptions = _courseService.GetSortingOptions(),
+            Languages = _courseService.GetLanguages(),
+            Levels = _courseService.GetLevels(),
+            RatingOptions = _courseService.GetRatingOptions(),
+        };
+        return Ok(options);
     }
 
     [HttpGet("available")]

@@ -1,5 +1,6 @@
 using System.Text;
 using Application.Constants;
+using Application.Filters;
 using Application.Interfaces;
 using Application.Mappings;
 using Application.Services;
@@ -86,6 +87,12 @@ builder.Services.AddScoped<IHomeworkAssignmentService, HomeworkAssignmentService
 builder.Services.AddScoped<IHomeworkService, HomeworkService>();
 builder.Services.AddScoped<ILessonService, LessonService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+
+// Course Filter Pipeline
+builder.Services.AddScoped<ICourseFilter, CourseFilter>();
+builder.Services.AddScoped<ICourseSorter, CourseSorter>();
+builder.Services.AddScoped<ICoursePaginator, CoursePaginator>();
+builder.Services.AddScoped<ICourseFilterPipeline, CourseFilterPipeline>();
 
 // HttpClient for Payment microservice
 builder.Services.AddHttpClient();
