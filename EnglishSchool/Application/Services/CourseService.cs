@@ -1,9 +1,12 @@
 using Application.Constants;
 using Application.DTOs.Course;
+using Application.Filters;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
+using Domain.Entities.Enums;
 using Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,7 +19,9 @@ public class CourseService(
     IMapper mapper,
     IOptions<CacheSettings> cacheSettings,
     IMemoryCache memoryCache,
-    ILogger<CourseService> logger) : ICourseService
+    ILogger<CourseService> logger,
+    ICourseFilterPipeline filterPipeline,
+    ICoursePaginator paginator) : ICourseService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly ICourseRepository _courseRepository = courseRepository;
@@ -24,6 +29,8 @@ public class CourseService(
     private readonly IMemoryCache _memoryCache = memoryCache;
     private readonly ILogger<CourseService> _logger = logger;
     private readonly int _cacheExpirationMinutes = cacheSettings.Value.DefaultExpirationMinutes;
+    private readonly ICourseFilterPipeline _filterPipeline = filterPipeline;
+    private readonly ICoursePaginator _paginator = paginator;
 
     public async Task<Guid> CreateCourseAsync(CreateCourseDto dto)
     {
@@ -183,5 +190,135 @@ public class CourseService(
         _logger.LogDebug($"Cleared courses cache after deleting course");
 
         _logger.LogInformation($"Successfully deleted course: {course.Id}");
+    }
+
+    public async Task<CourseFilterResultDto> GetFilteredCoursesAsync(CourseFilterDto filter)
+    {
+        _logger.LogInformation($"Retrieving filtered courses with filter: Page={filter.Page}, PageSize={filter.PageSize}, SortBy={filter.SortBy}");
+
+        var query = _courseRepository.GetQueryable();
+        var (paginatedQuery, totalCount) = _filterPipeline.Execute(query, filter);
+
+        var courses = await paginatedQuery.ToListAsync();
+        var courseDtos = _mapper.Map<List<CourseDto>>(courses);
+
+        var result = new CourseFilterResultDto
+        {
+            Courses = courseDtos,
+            TotalCount = totalCount,
+            CurrentPage = filter.Page,
+            PageSize = filter.PageSize,
+            TotalPages = _paginator.CalculateTotalPages(totalCount, filter.PageSize),
+        };
+
+        _logger.LogInformation($"Successfully retrieved {courseDtos.Count} courses (page {filter.Page} of {result.TotalPages}, total: {totalCount})");
+
+        return result;
+    }
+
+    public async Task<CourseDto> GetCourseDetailAsync(Guid id)
+    {
+        _logger.LogInformation($"Retrieving course detail and incrementing view count for ID: {id}");
+
+        var course = await _courseRepository.GetByIdAsync(id);
+        if (course is null)
+        {
+            _logger.LogError($"Course with ID {id} not found.");
+            throw new KeyNotFoundException($"Course with ID {id} not found.");
+        }
+
+        // Increment view count
+        await _courseRepository.IncrementViewCountAsync(id);
+        await _unitOfWork.SaveChangesAsync();
+
+        var courseDto = _mapper.Map<CourseDto>(course);
+        courseDto.ViewCount = course.ViewCount + 1; // Reflect the incremented count
+
+        _logger.LogInformation($"Successfully retrieved course detail: {id}, ViewCount: {courseDto.ViewCount}");
+
+        return courseDto;
+    }
+
+    public List<int> GetPaginationOptions()
+    {
+        return [9, 18, 36, 72];
+    }
+
+    public List<KeyValuePair<string, string>> GetSortingOptions()
+    {
+        return
+        [
+            new("newest", "Newest"),
+            new("popularity", "Popular"),
+            new("price_asc", "Price: Low to High"),
+            new("price_desc", "Price: High to Low"),
+            new("rating_desc", "Highest Rated"),
+            new("duration_asc", "Duration: Short to Long"),
+            new("duration_desc", "Duration: Long to Short"),
+            new("title_asc", "Title: A-Z"),
+            new("title_desc", "Title: Z-A"),
+        ];
+    }
+
+    public List<KeyValuePair<CourseLanguage, string>> GetLanguages()
+    {
+        var cacheKey = CacheKeys.CourseLanguages;
+        if (_memoryCache.TryGetValue(cacheKey, out List<KeyValuePair<CourseLanguage, string>>? cachedLanguages) && cachedLanguages != null)
+        {
+            return cachedLanguages;
+        }
+
+        var languages = new List<KeyValuePair<CourseLanguage, string>>
+        {
+            new(CourseLanguage.Deutsch, "German"),
+            new(CourseLanguage.English, "English"),
+            new(CourseLanguage.Polski, "Polish"),
+            new(CourseLanguage.Italiano, "Italian"),
+        };
+
+        _memoryCache.Set(cacheKey, languages, TimeSpan.FromHours(24));
+        return languages;
+    }
+
+    public List<KeyValuePair<CourseLevel, string>> GetLevels()
+    {
+        var cacheKey = CacheKeys.CourseLevels;
+        if (_memoryCache.TryGetValue(cacheKey, out List<KeyValuePair<CourseLevel, string>>? cachedLevels) && cachedLevels != null)
+        {
+            return cachedLevels;
+        }
+
+        var levels = new List<KeyValuePair<CourseLevel, string>>
+        {
+            new(CourseLevel.Beginner, "Beginner (A1)"),
+            new(CourseLevel.Elementary, "Elementary (A2)"),
+            new(CourseLevel.Intermediate, "Intermediate (B1)"),
+            new(CourseLevel.UpperIntermediate, "Upper Intermediate (B2)"),
+            new(CourseLevel.Advanced, "Advanced (C1)"),
+            new(CourseLevel.Proficiency, "Proficiency (C2)"),
+        };
+
+        _memoryCache.Set(cacheKey, levels, TimeSpan.FromHours(24));
+        return levels;
+    }
+
+    public List<KeyValuePair<double, string>> GetRatingOptions()
+    {
+        var cacheKey = CacheKeys.CourseRatings;
+        if (_memoryCache.TryGetValue(cacheKey, out List<KeyValuePair<double, string>>? cachedRatings) && cachedRatings != null)
+        {
+            return cachedRatings;
+        }
+
+        var ratings = new List<KeyValuePair<double, string>>
+        {
+            new(4.5, "4.5 & up"),
+            new(4.0, "4.0 & up"),
+            new(3.5, "3.5 & up"),
+            new(3.0, "3.0 & up"),
+        };
+
+        _memoryCache.Set(cacheKey, ratings, TimeSpan.FromHours(24));
+        return ratings;
     }
 }

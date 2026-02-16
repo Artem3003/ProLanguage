@@ -9,4 +9,7 @@ public static class CacheKeys
     public const string Lessons = "Lessons";
     public const string TotalLessonsCount = "total-lessons-count";
     public const string TotalCoursesCount = "total-courses-count";
+    public const string CourseLanguages = "course-languages";
+    public const string CourseLevels = "course-levels";
+    public const string CourseRatings = "course-ratings";
 }

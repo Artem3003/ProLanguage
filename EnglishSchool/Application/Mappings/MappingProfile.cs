@@ -15,7 +15,9 @@ public class MappingProfile : Profile
     {
         // Course
         CreateMap<Course, CourseDto>();
-        CreateMap<CreateCourseDto, Course>();
+        CreateMap<CreateCourseDto, Course>()
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
+            .ForMember(dest => dest.ViewCount, opt => opt.MapFrom(src => 0));
         CreateMap<UpdateCourseDto, Course>()
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 

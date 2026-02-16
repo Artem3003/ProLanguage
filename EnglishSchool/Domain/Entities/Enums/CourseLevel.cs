@@ -7,5 +7,5 @@ public enum CourseLevel
     Intermediate,
     UpperIntermediate,
     Advanced,
-    Proficiency
+    Proficiency,
 }
