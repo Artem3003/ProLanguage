@@ -18,4 +18,8 @@
     <ProjectReference Include="..\Auth.Application\Auth.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\*.html" />
+  </ItemGroup>
+
 </Project>

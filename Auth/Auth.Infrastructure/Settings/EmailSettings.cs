@@ -37,7 +37,7 @@ public class EmailSettings
     /// <summary>
     /// Gets or sets the sender display name.
     /// </summary>
-    public string SenderName { get; set; } = "English School Platform";
+    public string SenderName { get; set; } = "ProLanguage";
 
     /// <summary>
     /// Gets or sets the frontend URL for password reset links.
