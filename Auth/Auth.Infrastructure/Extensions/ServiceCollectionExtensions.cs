@@ -60,6 +60,9 @@ public static class ServiceCollectionExtensions
             .AddEntityFrameworkStores<AuthDbContext>()
             .AddDefaultTokenProviders();
 
+        // Custom BCrypt password hasher
+        services.AddScoped<IPasswordHasher<ApplicationUser>, BCryptPasswordHasher>();
+
         // JWT Authentication
         var jwtSettings = configuration.GetSection("JwtSettings");
         var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey is not configured");
