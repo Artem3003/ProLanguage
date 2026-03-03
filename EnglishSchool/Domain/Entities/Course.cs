@@ -29,5 +29,7 @@ public class Course : BaseEntity<Guid>
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    public string? ImageUrl { get; set; }
+
     public List<Lesson> Lessons { get; set; } = [];
 }

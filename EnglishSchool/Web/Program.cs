@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using Application.Constants;
 using Application.Filters;
 using Application.Interfaces;
@@ -17,7 +18,11 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 // Configure Serilog from appsettings.json
 builder.Host.UseSerilog((context, configuration) =>
@@ -55,15 +60,15 @@ builder.Services.AddAuthentication(options =>
 // Authorization policies for role-based access control
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("ContentManagement", policy =>
-        policy.RequireRole("Administrator", "Manager", "Teacher"))
+        policy.RequireRole("Admin", "Manager", "Teacher"))
     .AddPolicy("TeacherAccess", policy =>
-        policy.RequireRole("Administrator", "Manager", "Teacher"))
+        policy.RequireRole("Admin", "Manager", "Teacher"))
     .AddPolicy("GradingAccess", policy =>
-        policy.RequireRole("Administrator", "Teacher"))
+        policy.RequireRole("Admin", "Teacher"))
     .AddPolicy("StudentAccess", policy =>
-        policy.RequireRole("Administrator", "Manager", "Teacher", "Student"))
+        policy.RequireRole("Admin", "Manager", "Teacher", "Student"))
     .AddPolicy("AdminOnly", policy =>
-        policy.RequireRole("Administrator"));
+        policy.RequireRole("Admin"));
 
 // Database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

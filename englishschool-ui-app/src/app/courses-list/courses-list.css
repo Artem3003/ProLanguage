@@ -62,6 +62,7 @@
   padding: 2px;
   background: linear-gradient(90deg, #303030, #E5A000);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
@@ -78,7 +79,7 @@
 }
 
 .search-input::placeholder {
-  color: #1E1E1E;
+  color: #757575;
 }
 
 .search-btn {
@@ -92,11 +93,16 @@
   align-items: center;
   justify-content: center;
   color: #666;
-  transition: background 0.2s;
+  transition: background 0.3s ease, transform 0.3s ease;
 }
 
 .search-btn:hover {
   background: #f5f5f5;
+  transform: scale(1.05);
+}
+
+.search-btn:active {
+  transform: scale(0.98);
 }
 
 /* Filter Bar */
@@ -121,7 +127,7 @@
   font-size: 14px;
   color: #333;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   white-space: nowrap;
 }
 
@@ -151,7 +157,7 @@
   left: 0;
   min-width: 180px;
   background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   padding: 8px 0;
@@ -159,7 +165,7 @@
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px);
-  transition: all 0.2s;
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), visibility 0.3s;
 }
 
 .filter-dropdown.open .dropdown-menu {
@@ -176,7 +182,7 @@
   cursor: pointer;
   font-size: 14px;
   color: #303030;
-  transition: background 0.15s;
+  transition: background 0.25s ease;
 }
 
 .dropdown-item:hover {
@@ -194,6 +200,12 @@
   cursor: pointer;
   position: relative;
   background: transparent;
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+}
+
+.dropdown-item input[type="checkbox"]:hover,
+.dropdown-item input[type="radio"]:hover {
+  transform: scale(1.1);
 }
 
 .dropdown-item input[type="radio"] {
@@ -243,6 +255,7 @@
   color: #303030;
   background: transparent;
   outline: none;
+  transition: border-color 0.25s ease, border-width 0.2s ease, box-shadow 0.25s ease;
 }
 
 .price-inputs input::placeholder,
@@ -255,6 +268,7 @@
 .duration-inputs input:focus {
   border-color: #303030;
   border-width: 2px;
+  box-shadow: 0 0 0 3px rgba(48, 48, 48, 0.1);
 }
 
 .price-inputs span,
@@ -323,6 +337,17 @@
   100% { transform: rotate(360deg); }
 }
 
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .error-message {
   color: #dc3545;
   padding: 16px;
@@ -368,13 +393,24 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.35s ease, filter 0.3s ease;
   background-size: cover;
   background-position: center right;
   background-color: #f5a623;
   position: relative;
   min-height: 220px;
+  animation: fadeInUp 0.4s ease-out backwards;
 }
+
+.course-card:nth-child(1) { animation-delay: 0.05s; }
+.course-card:nth-child(2) { animation-delay: 0.1s; }
+.course-card:nth-child(3) { animation-delay: 0.15s; }
+.course-card:nth-child(4) { animation-delay: 0.2s; }
+.course-card:nth-child(5) { animation-delay: 0.25s; }
+.course-card:nth-child(6) { animation-delay: 0.3s; }
+.course-card:nth-child(7) { animation-delay: 0.35s; }
+.course-card:nth-child(8) { animation-delay: 0.4s; }
+.course-card:nth-child(9) { animation-delay: 0.45s; }
 
 .course-card::before {
   content: '';
@@ -433,6 +469,7 @@
 }
 
 .card-price {
+  font-family: 'Ag Single Line Boady Base', sans-serif;
   font-size: 18px;
   font-weight: 700;
   color: #1E1E1E;
@@ -445,13 +482,15 @@
   margin-right: 8px;
 }
 
+
 .card-duration {
   display: flex;
   align-items: center;
   gap: 6px;
+  font-family: 'Ag Single Line Boady Base', sans-serif;
   font-size: 14px;
   color: #1E1E1E;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .card-btn {
@@ -511,11 +550,16 @@
   align-items: center;
   justify-content: center;
   color: #303030;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
 }
 
 .pagination-btn:hover:not(:disabled) {
   color: #000;
+  transform: scale(1.15);
+}
+
+.pagination-btn:active:not(:disabled) {
+  transform: scale(0.95);
 }
 
 .pagination-btn:disabled {

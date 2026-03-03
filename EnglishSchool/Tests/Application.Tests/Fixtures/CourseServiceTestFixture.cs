@@ -1,5 +1,6 @@
 using Application.Constants;
 using Application.DTOs.Course;
+using Application.Filters;
 using Application.Services;
 using AutoMapper;
 using Domain.Entities;
@@ -28,7 +29,9 @@ public class CourseServiceTestFixture
             MockMapper.Object,
             MockCacheSettings.Object,
             MockMemoryCache.Object,
-            MockLogger.Object);
+            MockLogger.Object,
+            MockFilterPipeline.Object,
+            MockPaginator.Object);
     }
 
     public Mock<IUnitOfWork> MockUnitOfWork { get; } = new();
@@ -43,6 +46,10 @@ public class CourseServiceTestFixture
 
     public Mock<IMemoryCache> MockMemoryCache { get; } = new();
 
+    public Mock<ICourseFilterPipeline> MockFilterPipeline { get; } = new();
+
+    public Mock<ICoursePaginator> MockPaginator { get; } = new();
+
     public CourseService CourseService { get; }
 
     public void ResetMocks()
@@ -52,6 +59,8 @@ public class CourseServiceTestFixture
         MockMapper.Reset();
         MockCacheSettings.Reset();
         MockMemoryCache.Reset();
+        MockFilterPipeline.Reset();
+        MockPaginator.Reset();
 
         var cacheSettings = new CacheSettings { DefaultExpirationMinutes = 1 };
         MockCacheSettings.Setup(x => x.Value).Returns(cacheSettings);

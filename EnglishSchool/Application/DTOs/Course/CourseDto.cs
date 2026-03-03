@@ -35,4 +35,6 @@ public class CourseDto
     public DateTime CreatedAt { get; set; }
 
     public bool IsNew => CreatedAt >= DateTime.UtcNow.AddDays(-30);
+
+    public string? ImageUrl { get; set; }
 }

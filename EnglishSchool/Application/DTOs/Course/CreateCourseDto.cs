@@ -37,4 +37,6 @@ public class CreateCourseDto
 
     [Range(0, double.MaxValue, ErrorMessage = "Discount price must be a positive number")]
     public double? DiscountPrice { get; set; }
+
+    public string? ImageUrl { get; set; }
 }
