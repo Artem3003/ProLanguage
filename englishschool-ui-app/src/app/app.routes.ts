@@ -10,7 +10,8 @@ import { SigninComponent } from './signin/signin';
 import { RegisterComponent } from './register/register';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password';
 import { ResetPasswordComponent } from './reset-password/reset-password';
-import { authGuard, guestGuard } from './guards/auth.guard';
+import { AdminCourses } from './admin/admin-courses/admin-courses';
+import { authGuard, guestGuard, roleGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/courses', pathMatch: 'full' },
@@ -24,6 +25,8 @@ export const routes: Routes = [
   { path: 'signin', component: SigninComponent, canActivate: [guestGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [guestGuard] },
   { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [guestGuard] },
-  { path: 'reset-password', component: ResetPasswordComponent, canActivate: [guestGuard] }
+  { path: 'reset-password', component: ResetPasswordComponent, canActivate: [guestGuard] },
+  // Admin routes
+  { path: 'admin/courses', component: AdminCourses, canActivate: [roleGuard], data: { roles: ['Admin'] } }
 ];
 
