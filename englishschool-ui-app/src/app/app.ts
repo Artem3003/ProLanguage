@@ -11,7 +11,7 @@ import { filter } from 'rxjs/operators';
   selector: 'app-root',
   imports: [RouterOutlet, RouterModule, CommonModule, CartIcon, HeaderComponent, FooterComponent],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.scss'
 })
 export class App {
   protected readonly title = signal('englishschool-ui-app');

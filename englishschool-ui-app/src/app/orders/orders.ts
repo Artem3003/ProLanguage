@@ -10,7 +10,7 @@ import { CourseService } from '../services/course.service';
   selector: 'app-orders',
   imports: [CommonModule],
   templateUrl: './orders.html',
-  styleUrl: './orders.css'
+  styleUrl: './orders.scss'
 })
 export class Orders implements OnInit {
   orders: Order[] = [];

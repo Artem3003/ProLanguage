@@ -9,7 +9,7 @@ import { AuthService } from '../services/auth.service';
   standalone: true,
   imports: [RouterLink, FormsModule, CommonModule],
   templateUrl: './reset-password.html',
-  styleUrl: './reset-password.css',
+  styleUrl: './reset-password.scss',
 })
 export class ResetPasswordComponent implements OnInit {
   email = '';

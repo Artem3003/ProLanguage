@@ -11,7 +11,7 @@ import { CourseService } from '../services/course.service';
   selector: 'app-cart',
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './cart.html',
-  styleUrl: './cart.css'
+  styleUrl: './cart.scss'
 })
 export class Cart implements OnInit {
   cartItems: CartItem[] = [];

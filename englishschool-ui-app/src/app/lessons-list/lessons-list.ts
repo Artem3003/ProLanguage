@@ -12,7 +12,7 @@ import { LessonStatus } from '../models/enums/lesson-status.enum';
   selector: 'app-lessons-list',
   imports: [CommonModule, FormsModule],
   templateUrl: './lessons-list.html',
-  styleUrl: './lessons-list.css'
+  styleUrl: './lessons-list.scss'
 })
 export class LessonsList implements OnInit {
   title: string = 'Lessons';

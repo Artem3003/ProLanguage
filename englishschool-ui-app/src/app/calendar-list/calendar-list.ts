@@ -11,7 +11,7 @@ import { LessonService } from '../services/lesson.service';
   selector: 'app-calendar-list',
   imports: [CommonModule, FormsModule],
   templateUrl: './calendar-list.html',
-  styleUrl: './calendar-list.css'
+  styleUrl: './calendar-list.scss'
 })
 export class CalendarList implements OnInit {
   title: string = 'Calendar';

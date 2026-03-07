@@ -11,7 +11,7 @@ import { HomeworkService } from '../services/homework.service';
   selector: 'app-assignments-list',
   imports: [CommonModule, FormsModule],
   templateUrl: './assignments-list.html',
-  styleUrl: './assignments-list.css'
+  styleUrl: './assignments-list.scss'
 })
 export class AssignmentsList implements OnInit {
   title: string = 'Homework Assignments';

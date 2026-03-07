@@ -12,7 +12,7 @@ import { LoginRequest } from '../models/auth.model';
   standalone: true,
   imports: [RouterLink, FormsModule, CommonModule],
   templateUrl: './signin.html',
-  styleUrl: './signin.css',
+  styleUrl: './signin.scss',
 })
 export class SigninComponent implements AfterViewInit {
   @ViewChild('googleButton') googleButtonRef!: ElementRef;

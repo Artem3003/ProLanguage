@@ -8,7 +8,7 @@ import { AuthService } from '../services/auth.service';
   standalone: true,
   imports: [RouterLink, RouterLinkActive, CommonModule],
   templateUrl: './header.html',
-  styleUrl: './header.css',
+  styleUrl: './header.scss',
 })
 export class HeaderComponent {
   constructor(public authService: AuthService) {}

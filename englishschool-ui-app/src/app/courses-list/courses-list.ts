@@ -10,7 +10,7 @@ import { CourseService } from '../services/course.service';
   selector: 'app-courses-list',
   imports: [CommonModule, FormsModule],
   templateUrl: './courses-list.html',
-  styleUrl: './courses-list.css'
+  styleUrl: './courses-list.scss'
 })
 export class CoursesList implements OnInit {
   // State

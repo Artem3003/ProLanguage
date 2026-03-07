@@ -10,7 +10,7 @@ import { CourseService } from '../../services/course.service';
   selector: 'app-admin-courses',
   imports: [CommonModule, FormsModule],
   templateUrl: './admin-courses.html',
-  styleUrl: './admin-courses.css'
+  styleUrl: './admin-courses.scss'
 })
 export class AdminCourses implements OnInit {
   courses: Course[] = [];

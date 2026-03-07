@@ -12,7 +12,7 @@ import { RegisterRequest } from '../models/auth.model';
   standalone: true,
   imports: [RouterLink, FormsModule, CommonModule],
   templateUrl: './register.html',
-  styleUrl: './register.css',
+  styleUrl: './register.scss',
 })
 export class RegisterComponent implements AfterViewInit {
   @ViewChild('googleButton') googleButtonRef!: ElementRef;

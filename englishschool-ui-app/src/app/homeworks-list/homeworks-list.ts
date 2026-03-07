@@ -8,7 +8,7 @@ import { HomeworkService } from '../services/homework.service';
   selector: 'app-homeworks-list',
   imports: [CommonModule, FormsModule],
   templateUrl: './homeworks-list.html',
-  styleUrl: './homeworks-list.css'
+  styleUrl: './homeworks-list.scss'
 })
 export class HomeworksList implements OnInit {
   title: string = 'Homeworks';

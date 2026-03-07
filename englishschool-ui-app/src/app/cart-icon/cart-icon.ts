@@ -8,7 +8,7 @@ import { CartService } from '../services/cart.service';
   selector: 'app-cart-icon',
   imports: [CommonModule, RouterModule],
   templateUrl: './cart-icon.html',
-  styleUrl: './cart-icon.css'
+  styleUrl: './cart-icon.scss'
 })
 export class CartIcon implements OnInit, OnDestroy {
   itemCount: number = 0;
