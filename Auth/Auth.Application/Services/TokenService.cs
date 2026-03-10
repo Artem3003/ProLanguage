@@ -26,7 +26,7 @@ public class TokenService(IConfiguration configuration) : ITokenService
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
         {
-            KeyId = "EnglishSchoolSigningKey",
+            KeyId = "ProLanguageSigningKey",
         };
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

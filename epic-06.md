@@ -1,4 +1,4 @@
-# Epic 9 – Authorization (ProLanguage)
+# Epic 9 – Authorization
 
 ## General requirements
 

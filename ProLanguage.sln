@@ -3,19 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "EnglishSchool\Domain\Domain.csproj", "{D8B8F4E2-8E8B-4F4E-8E8B-8E8B8E8B8E8B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "ProLanguage\Domain\Domain.csproj", "{D8B8F4E2-8E8B-4F4E-8E8B-8E8B8E8B8E8B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "EnglishSchool\Application\Application.csproj", "{A8B8F4E2-8E8B-4F4E-8E8B-8E8B8E8B8E8B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "ProLanguage\Application\Application.csproj", "{A8B8F4E2-8E8B-4F4E-8E8B-8E8B8E8B8E8B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "EnglishSchool\Infrastructure\Infrastructure.csproj", "{ABB7E9F2-33C7-12BF-3C44-EA01B10F496D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "ProLanguage\Infrastructure\Infrastructure.csproj", "{ABB7E9F2-33C7-12BF-3C44-EA01B10F496D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "EnglishSchool\Web\Web.csproj", "{A76C97B6-D166-4710-C352-D3889412C4CC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "ProLanguage\Web\Web.csproj", "{A76C97B6-D166-4710-C352-D3889412C4CC}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EnglishSchool", "EnglishSchool", "{5DAD1C19-31A0-C27C-D74D-023943DE5D13}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ProLanguage", "ProLanguage", "{5DAD1C19-31A0-C27C-D74D-023943DE5D13}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Migrations", "EnglishSchool\Migrations\Migrations.csproj", "{5A072B51-EE14-4DFB-BE96-36C57932BBFA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Migrations", "ProLanguage\Migrations\Migrations.csproj", "{5A072B51-EE14-4DFB-BE96-36C57932BBFA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application.Tests", "EnglishSchool\Tests\Application.Tests\Application.Tests.csproj", "{8B2D4C5E-F7A9-4E8D-B3C2-1F5E9A7D6B4C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application.Tests", "ProLanguage\Tests\Application.Tests\Application.Tests.csproj", "{8B2D4C5E-F7A9-4E8D-B3C2-1F5E9A7D6B4C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Auth", "Auth", "{B1A2C3D4-E5F6-7890-ABCD-EF1234567890}"
 EndProject

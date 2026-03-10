@@ -1,6 +1,6 @@
-# English School Platform - Frontend Testing Application
+# ProLanguage Platform - Frontend Testing Application
 
-This is a simple Angular application for testing all backend API endpoints of the English School Platform.
+This is a simple Angular application for testing all backend API endpoints of the ProLanguage Platform.
 
 ## Features
 

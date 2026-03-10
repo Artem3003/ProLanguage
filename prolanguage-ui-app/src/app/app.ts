@@ -14,7 +14,7 @@ import { filter } from 'rxjs/operators';
   styleUrl: './app.scss'
 })
 export class App {
-  protected readonly title = signal('englishschool-ui-app');
+  protected readonly title = signal('prolanguage-ui-app');
   protected readonly isFullScreenRoute = signal(false);
   protected readonly isAdminPanelOpen = signal(false);
 

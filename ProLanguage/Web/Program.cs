@@ -34,7 +34,7 @@ var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException(
 
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
 {
-    KeyId = "EnglishSchoolSigningKey",
+    KeyId = "ProLanguageSigningKey",
 };
 
 builder.Services.AddAuthentication(options =>
@@ -119,13 +119,13 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "English School Platform API",
+        Title = "ProLanguage Platform API",
         Version = "v1",
-        Description = "Comprehensive API for English School Management System including lessons, homework, calendar events, and assignments management.",
+        Description = "Comprehensive API for ProLanguage Management System including lessons, homework, calendar events, and assignments management.",
         Contact = new OpenApiContact
         {
-            Name = "English School Platform Support",
-            Email = "support@englishschool.com",
+            Name = "ProLanguage Platform Support",
+            Email = "support@prolanguage.com",
         },
     });
 
@@ -207,9 +207,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "English School Platform API v1.0.0");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "ProLanguage Platform API v1.0.0");
         c.RoutePrefix = "swagger";
-        c.DocumentTitle = "English School Platform API Documentation";
+        c.DocumentTitle = "ProLanguage Platform API Documentation";
     });
 }
 

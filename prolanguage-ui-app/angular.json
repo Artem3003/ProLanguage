@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "englishschool-ui-app": {
+    "prolanguage-ui-app": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -61,10 +61,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "englishschool-ui-app:build:production"
+              "buildTarget": "prolanguage-ui-app:build:production"
             },
             "development": {
-              "buildTarget": "englishschool-ui-app:build:development"
+              "buildTarget": "prolanguage-ui-app:build:development"
             }
           },
           "defaultConfiguration": "development"

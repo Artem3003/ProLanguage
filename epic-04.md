@@ -3,7 +3,7 @@
 ## General Requirements
 
 **Front-end Integration:**  
-Create the Angular front-end: `english-school-ui-app`.
+Create the Angular front-end: `prolanguage-ui-app`.
 
 The system should support the following features:
 
@@ -126,7 +126,7 @@ Returns appropriate success or error status code.
 
 ### E04 US6 - UI Integration
 
-Configure english-school-ui-app to use the developed backend API.
+Configure prolanguage-ui-app to use the developed backend API.
 
 Ensure all UI functionalities work without errors.
 

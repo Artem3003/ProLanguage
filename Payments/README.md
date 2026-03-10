@@ -1,6 +1,6 @@
 # Payments Microservice
 
-A comprehensive payment processing microservice for the English School Platform, built with ASP.NET Core and Entity Framework Core.
+A comprehensive payment processing microservice for the ProLanguage Platform, built with ASP.NET Core and Entity Framework Core.
 
 ## Overview
 
@@ -139,7 +139,7 @@ dotnet run
 
 ## Integration
 
-This microservice is designed to work alongside the main English School Platform. It can be called by:
+This microservice is designed to work alongside the main ProLanguage Platform. It can be called by:
 - The main Web API for course enrollment payments
 - Frontend applications for payment processing
 - Other microservices requiring payment functionality
@@ -194,4 +194,4 @@ The microservice includes global exception handling that returns structured erro
 
 ## License
 
-This project is part of the English School Platform.
+This project is part of the ProLanguage Platform.

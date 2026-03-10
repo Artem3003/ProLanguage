@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 namespace Auth.Domain.Entities;
 
 /// <summary>
-/// Represents a role in the English School Platform.
+/// Represents a role in the ProLanguage.
 /// </summary>
 public class ApplicationRole : IdentityRole<Guid>
 {

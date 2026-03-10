@@ -36,13 +36,13 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "English School Auth API",
+        Title = "ProLanguage Auth API",
         Version = "v1",
-        Description = "Authentication and Authorization API for English School Platform",
+        Description = "Authentication and Authorization API for ProLanguage Platform",
         Contact = new OpenApiContact
         {
-            Name = "English School Platform Support",
-            Email = "support@englishschool.com",
+            Name = "ProLanguage Platform Support",
+            Email = "support@prolanguage.com",
         },
     });
 
@@ -91,7 +91,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "English School Auth API v1");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "ProLanguage Auth API v1");
         c.RoutePrefix = string.Empty;
     });
 }
@@ -125,7 +125,7 @@ using (var scope = app.Services.CreateScope())
         {
             await roleManager.CreateAsync(new ApplicationRole(role)
             {
-                Description = $"{role} role for English School Platform",
+                Description = $"{role} role for ProLanguage Platform",
                 CreatedAt = DateTime.UtcNow,
             });
         }
