@@ -12,11 +12,13 @@ import { ForgotPasswordComponent } from './forgot-password/forgot-password';
 import { ResetPasswordComponent } from './reset-password/reset-password';
 import { AdminCourses } from './admin/admin-courses/admin-courses';
 import { CommentsList } from './comments-list/comments-list';
+import { CourseDetails } from './course-details/course-details';
 import { authGuard, guestGuard, roleGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/courses', pathMatch: 'full' },
   { path: 'courses', component: CoursesList, canActivate: [authGuard] },
+  { path: 'courses/:id', component: CourseDetails, canActivate: [authGuard] },
   { path: 'lessons', component: LessonsList, canActivate: [authGuard] },
   { path: 'homeworks', component: HomeworksList, canActivate: [authGuard] },
   { path: 'assignments', component: AssignmentsList, canActivate: [authGuard] },

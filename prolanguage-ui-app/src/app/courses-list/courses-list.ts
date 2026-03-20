@@ -5,6 +5,7 @@ import { Course, CourseFilter, CourseFilterResult, CourseFilterOptions } from '.
 import { CourseLanguage } from '../models/enums/course-language.enum';
 import { CourseLevel } from '../models/enums/course-level.enum';
 import { CourseService } from '../services/course.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-courses-list',
@@ -43,7 +44,10 @@ export class CoursesList implements OnInit {
   sortingOptions: { key: string; value: string }[] = [];
   ratingOptions: { key: number; value: string }[] = [];
 
-  constructor(private courseService: CourseService) {}
+  constructor(
+    private courseService: CourseService,
+    private router: Router
+  ) {}
 
   // Selected filters
   selectedLanguages: CourseLanguage[] = [];
@@ -316,8 +320,7 @@ export class CoursesList implements OnInit {
   }
 
   viewCourseDetail(courseId: string): void {
-    // Will be connected to router later
-    console.log('View course detail:', courseId);
+    this.router.navigate(['/courses', courseId]);
   }
 
   getActiveFiltersCount(): number {

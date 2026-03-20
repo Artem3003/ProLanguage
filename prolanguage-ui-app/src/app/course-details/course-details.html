@@ -1,0 +1,142 @@
+@if (loading) {
+  <div class="loading-state">Loading course details...</div>
+} @else if (error) {
+  <div class="error-state">{{ error }}</div>
+} @else if (course) {
+  <section class="course-page">
+    <div class="hero-block">
+      <div class="hero-image" [style.background-image]="'url(' + (course.imageUrl || 'assets/course-placeholder.jpg') + ')'">
+        <span class="badge">Course</span>
+      </div>
+
+      <div class="hero-content">
+        <h1>{{ course.title }}</h1>
+
+        <div class="metrics-row">
+          <span class="price">{{ getCoursePriceText() }}</span>
+          <div class="stars" [attr.aria-label]="'Rating ' + (course.rating || 0)">
+            @for (star of stars; track star) {
+              <span [class.filled]="star <= getFilledStars(course.rating)">★</span>
+            }
+          </div>
+          <span class="count">{{ getCommentsCount(comments) }} Comments</span>
+        </div>
+
+        <div class="meta-row">
+          <span>{{ formatDuration(course.durationMinutes) }}</span>
+          <span>{{ course.level }}</span>
+          <span>{{ course.language }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions-row">
+      <button class="cart-btn" (click)="addToCart()" [disabled]="addingToCart">
+        {{ addingToCart ? 'Adding...' : 'Add to Cart' }}
+      </button>
+    </div>
+
+    @if (successMessage) {
+      <p class="success-msg">{{ successMessage }}</p>
+    }
+    @if (actionError) {
+      <p class="error-msg">{{ actionError }}</p>
+    }
+
+    <section class="description-block">
+      <h2>Description</h2>
+      <p>{{ course.description || 'No description available for this course.' }}</p>
+    </section>
+
+    <section class="lessons-block">
+      <h2>Lessons ({{ lessons.length }})</h2>
+      @if (lessons.length === 0) {
+        <p>No lessons found for this course.</p>
+      } @else {
+        <div class="lesson-list">
+          @for (lesson of lessons; track lesson.id) {
+            <article class="lesson-item">
+              <h3>{{ lesson.title }}</h3>
+              <p>{{ lesson.description }}</p>
+              <div class="lesson-meta">
+                <span>{{ formatDuration(lesson.durationMinutes) }}</span>
+                <span>{{ lesson.type }}</span>
+                <span>{{ lesson.status }}</span>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="comments-block">
+      <div class="comments-header">
+        <h2>{{ getCommentsCount(comments) }} Comments</h2>
+        <button class="write-btn" (click)="toggleCommentForm()">
+          {{ showCommentForm ? 'Cancel' : 'Write comment' }}
+        </button>
+      </div>
+
+      @if (showCommentForm) {
+        <div class="comment-form">
+          <input type="text" placeholder="Your name" [(ngModel)]="commentName" />
+          <textarea rows="4" placeholder="Write your comment" [(ngModel)]="commentBody"></textarea>
+          <button (click)="submitComment()" [disabled]="loadingComment || !commentName.trim() || !commentBody.trim()">
+            {{ loadingComment ? 'Posting...' : 'Post comment' }}
+          </button>
+        </div>
+      }
+
+      @if (comments.length === 0) {
+        <p class="no-comments">No comments yet.</p>
+      } @else {
+        <div class="comment-list">
+          @for (comment of comments; track comment.id) {
+            <ng-container *ngTemplateOutlet="commentNode; context: { $implicit: comment, depth: 0 }"></ng-container>
+          }
+        </div>
+      }
+    </section>
+  </section>
+}
+
+<ng-template #commentNode let-comment let-depth="depth">
+  <article class="comment-item" [style.margin-left.px]="depth * 28">
+    <header>
+      <strong>{{ comment.name }}</strong>
+    </header>
+
+    <p [class.deleted]="comment.body === 'A comment/quote was deleted'">{{ comment.body }}</p>
+
+    <div class="comment-actions">
+      <button (click)="startReply(comment)" [disabled]="loadingComment">Reply</button>
+      <button (click)="startQuote(comment)" [disabled]="loadingComment">Quote</button>
+      <button (click)="deleteComment(comment)" [disabled]="loadingComment">Delete</button>
+    </div>
+
+    @if (activeParentComment?.id === comment.id) {
+      <div class="inline-form">
+        <p>
+          @if (activeAction === 'reply') {
+            Replying to {{ comment.name }}
+          }
+          @if (activeAction === 'quote') {
+            Quoting {{ comment.name }}
+          }
+        </p>
+        <input type="text" placeholder="Your name" [(ngModel)]="actionName" />
+        <textarea rows="3" placeholder="Write your text" [(ngModel)]="actionBody"></textarea>
+        <div class="inline-actions">
+          <button (click)="submitAction()" [disabled]="loadingComment || !actionName.trim() || !actionBody.trim()">Submit</button>
+          <button (click)="cancelActiveAction()" [disabled]="loadingComment">Cancel</button>
+        </div>
+      </div>
+    }
+
+    @if (comment.childComments.length > 0) {
+      @for (child of comment.childComments; track child.id) {
+        <ng-container *ngTemplateOutlet="commentNode; context: { $implicit: child, depth: depth + 1 }"></ng-container>
+      }
+    }
+  </article>
+</ng-template>
