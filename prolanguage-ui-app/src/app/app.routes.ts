@@ -11,6 +11,7 @@ import { RegisterComponent } from './register/register';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password';
 import { ResetPasswordComponent } from './reset-password/reset-password';
 import { AdminCourses } from './admin/admin-courses/admin-courses';
+import { CommentsList } from './comments-list/comments-list';
 import { authGuard, guestGuard, roleGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -22,6 +23,7 @@ export const routes: Routes = [
   { path: 'calendar', component: CalendarList, canActivate: [authGuard] },
   { path: 'cart', component: Cart, canActivate: [authGuard] },
   { path: 'orders', component: Orders, canActivate: [authGuard] },
+  { path: 'comments', component: CommentsList, canActivate: [authGuard] },
   { path: 'signin', component: SigninComponent, canActivate: [guestGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [guestGuard] },
   { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [guestGuard] },

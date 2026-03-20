@@ -1,0 +1,359 @@
+@use 'sass:color';
+
+$dark: #303030;
+$accent: #E5A000;
+$text: #1E1E1E;
+$gray: #666;
+$light: #f5f5f5;
+$white: #fff;
+$danger: #dc3545;
+$warning: #ffc107;
+$success: #28a745;
+
+$font-title: 'Ag Title Hero', sans-serif;
+$font-heading: 'Af Heading', sans-serif;
+$font-body: 'Ag Single Line Boady Base', sans-serif;
+
+.hero-section {
+  text-align: center;
+  padding: 60px 20px;
+  margin-bottom: 30px;
+}
+
+.hero-title {
+  font: 700 72px/1.2 $font-title;
+  color: #0C0C0D;
+  margin: 0 0 16px;
+}
+
+.hero-subtitle {
+  font: 700 24px $font-heading;
+  color: #0C0C0D;
+  margin: 0;
+  .highlight { color: $accent; font-weight: 600; }
+}
+
+.highlight { color: $accent; }
+
+// Course Selector
+.course-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 0 20px;
+
+  label {
+    font: 600 16px $font-heading;
+    color: $text;
+  }
+
+  select {
+    flex: 1;
+    max-width: 400px;
+    padding: 10px 14px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+
+    &:focus {
+      border-color: $accent;
+    }
+  }
+}
+
+// Messages
+.success-message {
+  background: color.adjust($success, $lightness: 40%);
+  color: color.adjust($success, $lightness: -15%);
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin: 0 20px 16px;
+  font-weight: 500;
+}
+
+.error-message {
+  background: color.adjust($danger, $lightness: 35%);
+  color: color.adjust($danger, $lightness: -15%);
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin: 0 20px 16px;
+  font-weight: 500;
+}
+
+// Comment Form
+.comment-form {
+  background: $white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 24px;
+  margin: 0 20px 24px;
+
+  h3 {
+    margin: 0 0 16px;
+    font: 600 18px $font-heading;
+    color: $text;
+  }
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+
+  &:focus {
+    border-color: $accent;
+  }
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  resize: vertical;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: border-color 0.2s;
+
+  &:focus {
+    border-color: $accent;
+  }
+}
+
+.form-select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+
+  &:focus {
+    border-color: $accent;
+  }
+}
+
+// Buttons
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primary {
+  background: $accent;
+  color: $white;
+
+  &:hover:not(:disabled) {
+    background: color.adjust($accent, $lightness: -10%);
+  }
+}
+
+.btn-secondary {
+  background: #e0e0e0;
+  color: $text;
+
+  &:hover:not(:disabled) {
+    background: color.adjust(#e0e0e0, $lightness: -10%);
+  }
+}
+
+.btn-warning {
+  background: $warning;
+  color: $dark;
+
+  &:hover:not(:disabled) {
+    background: color.adjust($warning, $lightness: -10%);
+  }
+}
+
+.btn-danger {
+  background: $danger;
+  color: $white;
+
+  &:hover:not(:disabled) {
+    background: color.adjust($danger, $lightness: -10%);
+  }
+}
+
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+// Ban Section
+.ban-section {
+  padding: 0 20px;
+  margin-bottom: 24px;
+}
+
+.ban-form {
+  background: color.adjust($warning, $lightness: 35%);
+  border: 1px solid $warning;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+
+  .form-group {
+    flex: 1;
+    min-width: 200px;
+    margin-bottom: 0;
+  }
+}
+
+// Loading
+.loading-container {
+  text-align: center;
+  padding: 40px 20px;
+  color: $gray;
+
+  p {
+    margin-top: 12px;
+    font-size: 16px;
+  }
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e0e0e0;
+  border-top-color: $accent;
+  border-radius: 50%;
+  margin: 0 auto;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// Empty state
+.empty-container {
+  text-align: center;
+  padding: 40px 20px;
+  color: $gray;
+  font-size: 16px;
+}
+
+// Comments List
+.comments-list {
+  padding: 0 20px;
+}
+
+.comment-item {
+  background: $white;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.comment-header {
+  margin-bottom: 8px;
+}
+
+.comment-author {
+  font-weight: 700;
+  font-size: 15px;
+  color: $text;
+}
+
+.comment-body {
+  font-size: 14px;
+  color: $text;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  word-break: break-word;
+
+  &.deleted {
+    color: $gray;
+    font-style: italic;
+  }
+}
+
+.comment-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-action {
+  background: none;
+  border: none;
+  color: $accent;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+
+  &:hover {
+    background: color.adjust($accent, $lightness: 35%);
+  }
+
+  &.btn-delete {
+    color: $danger;
+
+    &:hover {
+      background: color.adjust($danger, $lightness: 35%);
+    }
+  }
+}
+
+// Reply/Quote Form
+.reply-form {
+  background: $light;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+.reply-info {
+  font-size: 13px;
+  color: $gray;
+  margin: 0 0 10px;
+
+  em {
+    color: $text;
+  }
+}
+
+.reply-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}

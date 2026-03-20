@@ -1,4 +1,5 @@
 using Application.DTOs.CalendarEvent;
+using Application.DTOs.Comment;
 using Application.DTOs.Course;
 using Application.DTOs.Homework;
 using Application.DTOs.HomeworkAssignment;
@@ -64,5 +65,11 @@ public class MappingProfile : Profile
 
         // OrderCourse -> OrderDetailDto
         CreateMap<OrderCourse, OrderDetailDto>();
+
+        // Comment
+        CreateMap<Comment, CommentDto>()
+            .ForMember(dest => dest.ChildComments, opt => opt.MapFrom(src => src.ChildComments));
+        CreateMap<CreateCommentDto, Comment>()
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
     }
 }

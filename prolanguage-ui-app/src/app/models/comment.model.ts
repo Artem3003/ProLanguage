@@ -1,0 +1,20 @@
+export interface Comment {
+  id: string;
+  name: string;
+  body: string;
+  childComments: Comment[];
+}
+
+export interface CreateCommentRequest {
+  comment: {
+    name: string;
+    body: string;
+  };
+  parentId: string | null;
+  action: string | null;
+}
+
+export interface BanRequest {
+  user: string;
+  duration: string;
+}

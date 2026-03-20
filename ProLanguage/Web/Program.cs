@@ -84,6 +84,8 @@ builder.Services.AddScoped<ILessonRepository, LessonRepository>();
 builder.Services.AddScoped<IStudentLessonRepository, StudentLessonRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderCourseRepository, OrderCourseRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<IBanRepository, BanRepository>();
 
 // Application Services
 builder.Services.AddScoped<ICalendarEventService, CalendarEventService>();
@@ -92,6 +94,7 @@ builder.Services.AddScoped<IHomeworkAssignmentService, HomeworkAssignmentService
 builder.Services.AddScoped<IHomeworkService, HomeworkService>();
 builder.Services.AddScoped<ILessonService, LessonService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 
 // Course Filter Pipeline
 builder.Services.AddScoped<ICourseFilter, CourseFilter>();
@@ -103,7 +106,7 @@ builder.Services.AddScoped<ICourseFilterPipeline, CourseFilterPipeline>();
 builder.Services.AddHttpClient();
 
 // AutoMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile).Assembly);
 
 // Memory Cache
 builder.Services.AddMemoryCache();
@@ -178,6 +181,7 @@ builder.Services.AddSwaggerGen(c =>
                 "Homeworks" => "Homework Management",
                 "Calendar" => "Calendar Events",
                 "Assignments" => "Homework Assignments",
+                "Comments" => "Comments & Moderation",
                 _ => controller,
             },
         ];

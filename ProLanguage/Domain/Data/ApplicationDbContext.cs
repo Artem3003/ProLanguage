@@ -21,6 +21,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     public DbSet<OrderCourse> OrderCourses { get; set; }
 
+    public DbSet<Comment> Comments { get; set; }
+
+    public DbSet<Ban> Bans { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -137,6 +141,34 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                   .WithMany()
                   .HasForeignKey(e => e.CourseId)
                   .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Comment configuration
+        modelBuilder.Entity<Comment>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.Body).IsRequired();
+            entity.Property(e => e.CourseId).IsRequired();
+            entity.Property(e => e.IsDeleted).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.HasOne(e => e.ParentComment)
+                  .WithMany(e => e.ChildComments)
+                  .HasForeignKey(e => e.ParentCommentId)
+                  .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.Course)
+                  .WithMany()
+                  .HasForeignKey(e => e.CourseId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Ban configuration
+        modelBuilder.Entity<Ban>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.UserName).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.Duration).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.BannedAt).IsRequired();
         });
     }
 }

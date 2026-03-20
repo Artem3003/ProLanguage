@@ -1,0 +1,148 @@
+<!-- Hero Section -->
+<div class="hero-section">
+  <div class="hero-content">
+    <h1 class="hero-title">Course <span class="highlight">Comments</span></h1>
+    <p class="hero-subtitle">Share your thoughts, reply, and engage with the <span class="highlight">Pro</span> Languages community</p>
+  </div>
+</div>
+
+<!-- Course Selector -->
+<div class="course-selector">
+  <label for="courseSelect">Select Course:</label>
+  <select id="courseSelect" [(ngModel)]="selectedCourseId" (change)="onCourseChange()">
+    @for (course of courses; track course.id) {
+      <option [value]="course.id">{{ course.title }}</option>
+    }
+  </select>
+</div>
+
+<!-- Messages -->
+@if (successMessage) {
+  <div class="success-message">{{ successMessage }}</div>
+}
+@if (error) {
+  <div class="error-message">{{ error }}</div>
+}
+
+<!-- Add Comment Form -->
+<div class="comment-form">
+  <h3>Add a Comment</h3>
+  <div class="form-group">
+    <input type="text" placeholder="Your name" [(ngModel)]="commentName" class="form-input">
+  </div>
+  <div class="form-group">
+    <textarea placeholder="Your comment..." [(ngModel)]="commentBody" class="form-textarea" rows="3"></textarea>
+  </div>
+  <button class="btn btn-primary" (click)="addComment()" [disabled]="!commentName.trim() || !commentBody.trim()">
+    Post Comment
+  </button>
+</div>
+
+<!-- Ban Section -->
+<div class="ban-section">
+  <button class="btn btn-warning" (click)="toggleBanForm()">
+    {{ showBanForm ? 'Cancel' : 'Ban User' }}
+  </button>
+
+  @if (showBanForm) {
+    <div class="ban-form">
+      <div class="form-group">
+        <input type="text" placeholder="Username to ban" [(ngModel)]="banUserName" class="form-input">
+      </div>
+      <div class="form-group">
+        <select [(ngModel)]="banDuration" class="form-select">
+          @for (duration of banDurations; track duration) {
+            <option [value]="duration">{{ duration }}</option>
+          }
+        </select>
+      </div>
+      <button class="btn btn-danger" (click)="banUser()" [disabled]="!banUserName.trim()">
+        Confirm Ban
+      </button>
+    </div>
+  }
+</div>
+
+<!-- Loading State -->
+@if (loading) {
+  <div class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading comments...</p>
+  </div>
+}
+
+<!-- Empty State -->
+@if (!loading && comments.length === 0) {
+  <div class="empty-container">
+    <p>No comments yet. Be the first to comment!</p>
+  </div>
+}
+
+<!-- Comments List -->
+@if (!loading && comments.length > 0) {
+  <div class="comments-list">
+    @for (comment of comments; track comment.id) {
+      <ng-container *ngTemplateOutlet="commentTemplate; context: { $implicit: comment, depth: 0 }"></ng-container>
+    }
+  </div>
+}
+
+<!-- Recursive Comment Template -->
+<ng-template #commentTemplate let-comment let-depth="depth">
+  <div class="comment-item" [style.margin-left.px]="depth * 32">
+    <div class="comment-header">
+      <span class="comment-author">{{ comment.name }}</span>
+    </div>
+    <div class="comment-body" [class.deleted]="comment.body === 'A comment/quote was deleted'">
+      {{ comment.body }}
+    </div>
+    <div class="comment-actions">
+      @if (comment.body !== 'A comment/quote was deleted') {
+        <button class="btn-action" (click)="startReply(comment)">Reply</button>
+        <button class="btn-action" (click)="startQuote(comment)">Quote</button>
+        <button class="btn-action btn-delete" (click)="deleteComment(comment)">Delete</button>
+      }
+    </div>
+
+    <!-- Reply Form -->
+    @if (replyingTo?.id === comment.id) {
+      <div class="reply-form">
+        <p class="reply-info">Replying to <strong>{{ comment.name }}</strong></p>
+        <div class="form-group">
+          <input type="text" placeholder="Your name" [(ngModel)]="replyName" class="form-input">
+        </div>
+        <div class="form-group">
+          <textarea placeholder="Your reply..." [(ngModel)]="replyBody" class="form-textarea" rows="2"></textarea>
+        </div>
+        <div class="reply-buttons">
+          <button class="btn btn-primary btn-sm" (click)="submitReply()" [disabled]="!replyName.trim() || !replyBody.trim()">Send Reply</button>
+          <button class="btn btn-secondary btn-sm" (click)="cancelReply()">Cancel</button>
+        </div>
+      </div>
+    }
+
+    <!-- Quote Form -->
+    @if (quotingComment?.id === comment.id) {
+      <div class="reply-form">
+        <p class="reply-info">Quoting: <em>"{{ comment.body }}"</em></p>
+        <div class="form-group">
+          <input type="text" placeholder="Your name" [(ngModel)]="replyName" class="form-input">
+        </div>
+        <div class="form-group">
+          <textarea placeholder="Your comment..." [(ngModel)]="replyBody" class="form-textarea" rows="2"></textarea>
+        </div>
+        <div class="reply-buttons">
+          <button class="btn btn-primary btn-sm" (click)="submitQuote()" [disabled]="!replyName.trim() || !replyBody.trim()">Send Quote</button>
+          <button class="btn btn-secondary btn-sm" (click)="cancelReply()">Cancel</button>
+        </div>
+      </div>
+    }
+
+    <!-- Child Comments (recursive) -->
+    @if (comment.childComments && comment.childComments.length > 0) {
+      @for (child of comment.childComments; track child.id) {
+        <ng-container *ngTemplateOutlet="commentTemplate; context: { $implicit: child, depth: depth + 1 }"></ng-container>
+      }
+    }
+  </div>
+</ng-template>
