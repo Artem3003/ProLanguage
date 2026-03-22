@@ -9,6 +9,7 @@ namespace Application.Services;
 public class CommentService(
     IUnitOfWork unitOfWork,
     ICommentRepository commentRepository,
+    ICourseRepository courseRepository,
     IBanRepository banRepository,
     ILogger<CommentService> logger) : ICommentService
 {
@@ -16,6 +17,7 @@ public class CommentService(
 
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly ICommentRepository _commentRepository = commentRepository;
+    private readonly ICourseRepository _courseRepository = courseRepository;
     private readonly IBanRepository _banRepository = banRepository;
     private readonly ILogger<CommentService> _logger = logger;
 
@@ -28,54 +30,96 @@ public class CommentService(
         "permanent"
     ];
 
-    public async Task<Guid> AddCommentAsync(Guid courseId, CreateCommentRequestDto request)
+    public async Task<Guid> AddCommentAsync(Guid courseId, string currentUserName, CreateCommentRequestDto request)
     {
-        _logger.LogInformation("Adding comment to course {CourseId} by {Name}", courseId, request.Comment.Name);
+        _logger.LogInformation("Adding comment to course {CourseId} by {Name}", courseId, currentUserName);
+
+        if (string.IsNullOrWhiteSpace(currentUserName) || string.IsNullOrWhiteSpace(request.Comment.Body))
+        {
+            throw new InvalidOperationException("Comment body is required.");
+        }
+
+        if (request.Comment.Rating is < 1 or > 5)
+        {
+            throw new InvalidOperationException("Rating must be between 1 and 5.");
+        }
 
         // Check if user is banned
-        var activeBan = await _banRepository.GetActiveBanByUserNameAsync(request.Comment.Name);
+        var activeBan = await _banRepository.GetActiveBanByUserNameAsync(currentUserName);
         if (activeBan != null)
         {
-            _logger.LogWarning("User {Name} is banned until {ExpiresAt}", request.Comment.Name, activeBan.ExpiresAt?.ToString() ?? "permanent");
-            throw new InvalidOperationException($"User '{request.Comment.Name}' is banned and cannot add comments.");
+            _logger.LogWarning("User {Name} is banned until {ExpiresAt}", currentUserName, activeBan.ExpiresAt?.ToString() ?? "permanent");
+            throw new InvalidOperationException($"User '{currentUserName}' is banned and cannot add comments.");
+        }
+
+        var action = request.Action?.Trim().ToLowerInvariant();
+        if (action is not null and not ("reply" or "quote"))
+        {
+            throw new InvalidOperationException("Action must be either 'reply' or 'quote'.");
+        }
+
+        if (action is not null && !request.ParentId.HasValue)
+        {
+            throw new InvalidOperationException("ParentId is required for reply and quote actions.");
+        }
+
+        Comment? parentComment = null;
+        if (request.ParentId.HasValue)
+        {
+            parentComment = await _commentRepository.GetByIdAsync(request.ParentId.Value);
+            if (parentComment == null)
+            {
+                throw new KeyNotFoundException($"Parent comment with ID {request.ParentId.Value} not found.");
+            }
+
+            if (parentComment.CourseId != courseId)
+            {
+                throw new InvalidOperationException("Parent comment does not belong to the specified course.");
+            }
+        }
+
+        var commentBody = request.Comment.Body.Trim();
+        var isQuote = false;
+
+        if (action == "reply" && parentComment != null)
+        {
+            if (!string.Equals(parentComment.Name, currentUserName, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException("You can reply only to your own comments.");
+            }
+
+            var replyText = GetTrailingText(commentBody);
+            commentBody = $"[{parentComment.Name}], {replyText}";
+        }
+
+        if (action == "quote" && parentComment != null)
+        {
+            if (!string.Equals(parentComment.Name, currentUserName, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException("You can quote only your own comments.");
+            }
+
+            var quoteText = GetTrailingText(commentBody);
+            var quotedSource = parentComment.IsDeleted ? DeletedCommentMessage : parentComment.Body;
+            commentBody = $"[{quotedSource}], {quoteText}";
+            isQuote = true;
         }
 
         var comment = new Comment
         {
-            Name = request.Comment.Name,
-            Body = request.Comment.Body,
+            Name = currentUserName.Trim(),
+            Body = commentBody,
             CourseId = courseId,
+            Rating = request.Comment.Rating,
             ParentCommentId = request.ParentId,
+            IsQuote = isQuote,
             CreatedAt = DateTime.UtcNow,
         };
 
-        // Handle reply action - format body with author name
-        if (request.Action == "reply" && request.ParentId.HasValue)
-        {
-            var parentComment = await _commentRepository.GetByIdAsync(request.ParentId.Value);
-            if (parentComment == null)
-            {
-                throw new KeyNotFoundException($"Parent comment with ID {request.ParentId.Value} not found.");
-            }
-
-            // Body already formatted by client as [Author], text
-            comment.Body = request.Comment.Body;
-        }
-
-        // Handle quote action - format body with quoted text
-        if (request.Action == "quote" && request.ParentId.HasValue)
-        {
-            var parentComment = await _commentRepository.GetByIdAsync(request.ParentId.Value);
-            if (parentComment == null)
-            {
-                throw new KeyNotFoundException($"Parent comment with ID {request.ParentId.Value} not found.");
-            }
-
-            // Body already formatted by client as [Body], text
-            comment.Body = request.Comment.Body;
-        }
-
         await _commentRepository.AddAsync(comment);
+        await _unitOfWork.SaveChangesAsync();
+
+        await UpdateCourseRatingAsync(courseId);
         await _unitOfWork.SaveChangesAsync();
 
         _logger.LogInformation("Successfully added comment with ID {CommentId} to course {CourseId}", comment.Id, courseId);
@@ -83,23 +127,23 @@ public class CommentService(
         return comment.Id;
     }
 
-    public async Task<IEnumerable<CommentDto>> GetCommentsByCourseIdAsync(Guid courseId)
+    public async Task<IEnumerable<CommentDto>> GetCommentsByCourseIdAsync(Guid courseId, string currentUserName)
     {
         _logger.LogInformation("Retrieving comments for course {CourseId}", courseId);
 
-        var comments = await _commentRepository.GetByCourseIdAsync(courseId);
-        var commentDtos = BuildCommentTree(comments);
+        var comments = await _commentRepository.GetFlatByCourseIdAsync(courseId);
+        var commentDtos = BuildCommentTree(comments, currentUserName);
 
-        _logger.LogInformation("Successfully retrieved {Count} top-level comments for course {CourseId}", commentDtos.Count(), courseId);
+        _logger.LogInformation("Successfully retrieved {Count} top-level comments for course {CourseId}", commentDtos.Count, courseId);
 
         return commentDtos;
     }
 
-    public async Task DeleteCommentAsync(Guid courseId, Guid commentId)
+    public async Task DeleteCommentAsync(Guid courseId, Guid commentId, string currentUserName)
     {
         _logger.LogInformation("Deleting comment {CommentId} from course {CourseId}", commentId, courseId);
 
-        var comment = await _commentRepository.GetByIdWithChildrenAsync(commentId);
+        var comment = await _commentRepository.GetByIdWithParentAsync(commentId);
         if (comment == null)
         {
             throw new KeyNotFoundException($"Comment with ID {commentId} not found.");
@@ -110,14 +154,22 @@ public class CommentService(
             throw new InvalidOperationException("Comment does not belong to the specified course.");
         }
 
+        if (!string.Equals(comment.Name, currentUserName, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("You can delete only your own comments.");
+        }
+
         // Soft delete - mark as deleted
         comment.IsDeleted = true;
         comment.Body = DeletedCommentMessage;
         _commentRepository.Update(comment);
 
         // Update any child comments that quote this deleted comment
-        await UpdateQuotingComments(commentId);
+        await UpdateQuotingComments(courseId, commentId);
 
+        await _unitOfWork.SaveChangesAsync();
+
+        await UpdateCourseRatingAsync(courseId);
         await _unitOfWork.SaveChangesAsync();
 
         _logger.LogInformation("Successfully deleted comment {CommentId}", commentId);
@@ -151,39 +203,63 @@ public class CommentService(
         return BanDurations;
     }
 
-    private IEnumerable<CommentDto> BuildCommentTree(IEnumerable<Comment> comments)
+    private static string GetTrailingText(string body)
     {
-        return comments.Select(MapCommentToDto);
+        var markerIndex = body.IndexOf(", ", StringComparison.Ordinal);
+        return body.StartsWith('[') && markerIndex > 0
+            ? body[(markerIndex + 2)..].Trim()
+            : body;
     }
 
-    private CommentDto MapCommentToDto(Comment comment)
+    private static List<CommentDto> BuildCommentTree(List<Comment> comments, string currentUserName)
+    {
+        var dtoById = comments.ToDictionary(c => c.Id, c => MapCommentToDto(c, currentUserName));
+        var rootComments = new List<CommentDto>();
+
+        foreach (var comment in comments)
+        {
+            if (comment.ParentCommentId.HasValue && dtoById.TryGetValue(comment.ParentCommentId.Value, out var parentDto))
+            {
+                parentDto.ChildComments.Add(dtoById[comment.Id]);
+            }
+            else
+            {
+                rootComments.Add(dtoById[comment.Id]);
+            }
+        }
+
+        return rootComments;
+    }
+
+    private static CommentDto MapCommentToDto(Comment comment, string currentUserName)
     {
         return new CommentDto
         {
             Id = comment.Id,
             Name = comment.Name,
+            CreatedAt = comment.CreatedAt,
+            Rating = comment.Rating,
             Body = comment.IsDeleted ? DeletedCommentMessage : comment.Body,
-            ChildComments = comment.ChildComments
-                .Select(MapCommentToDto)
-                .ToList(),
+            IsOwnComment = string.Equals(comment.Name, currentUserName, StringComparison.OrdinalIgnoreCase),
+            ChildComments = [],
         };
     }
 
-    private async Task UpdateQuotingComments(Guid deletedCommentId)
+    private async Task UpdateQuotingComments(Guid courseId, Guid deletedCommentId)
     {
-        var allComments = await _commentRepository.GetAllAsync();
+        var allComments = await _commentRepository.GetFlatByCourseIdAsync(courseId);
         var quotingComments = allComments
-            .Where(c => c.ParentCommentId == deletedCommentId && !c.IsDeleted);
+            .Where(c => c.ParentCommentId == deletedCommentId && c.IsQuote && !c.IsDeleted);
 
         foreach (var quotingComment in quotingComments)
         {
-            // If this comment was a quote, update the quoted text portion
             if (quotingComment.Body.StartsWith('['))
             {
                 var closingBracket = quotingComment.Body.IndexOf(']');
                 if (closingBracket > 0)
                 {
-                    quotingComment.Body = $"[{DeletedCommentMessage}]{quotingComment.Body[(closingBracket + 1)..]}";
+                    var trailing = quotingComment.Body[(closingBracket + 1)..];
+                    quotingComment.Body = $"[{DeletedCommentMessage}]{trailing}";
                     _commentRepository.Update(quotingComment);
                 }
             }
@@ -201,5 +277,26 @@ public class CommentService(
             "permanent" => null,
             _ => throw new InvalidOperationException($"Invalid ban duration: {duration}"),
         };
+    }
+
+    private async Task UpdateCourseRatingAsync(Guid courseId)
+    {
+        var course = await _courseRepository.GetByIdAsync(courseId);
+        if (course == null)
+        {
+            return;
+        }
+
+        var comments = await _commentRepository.GetFlatByCourseIdAsync(courseId);
+        var ratedComments = comments
+            .Where(c => !c.IsDeleted)
+            .Select(c => c.Rating)
+            .ToList();
+
+        course.Rating = ratedComments.Count == 0
+            ? null
+            : ratedComments.Average();
+
+        _courseRepository.Update(course);
     }
 }

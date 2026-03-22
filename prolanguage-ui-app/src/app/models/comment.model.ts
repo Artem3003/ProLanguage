@@ -1,14 +1,18 @@
 export interface Comment {
   id: string;
   name: string;
+  createdAt: string;
+  rating: number;
   body: string;
+  isOwnComment: boolean;
   childComments: Comment[];
 }
 
 export interface CreateCommentRequest {
   comment: {
-    name: string;
+    name?: string;
     body: string;
+    rating: number;
   };
   parentId: string | null;
   action: string | null;

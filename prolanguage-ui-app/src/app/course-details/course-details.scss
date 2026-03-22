@@ -18,6 +18,7 @@
 
 .hero-block {
   display: grid;
+  margin: 50px 0;
   grid-template-columns: minmax(280px, 1fr) 1.1fr;
   gap: 28px;
   align-items: stretch;
@@ -68,6 +69,7 @@
 
 .price {
   font-size: 32px;
+  margin-right: 20px;
   font-weight: 700;
 }
 
@@ -93,15 +95,25 @@
   font-size: 14px;
 }
 
+.duration-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.duration-pill svg {
+  flex: 0 0 auto;
+  display: block;
+}
+
 .actions-row {
   display: flex;
-  justify-content: center;
-  margin: 28px 0;
+  margin: 20px 0 0;
 }
 
 .cart-btn,
 .write-btn,
-.comment-form button,
+.comment-form .submit-comment-btn,
 .inline-actions button {
   border: 1px solid #c99600;
   background: #e5b327;
@@ -112,8 +124,12 @@
   cursor: pointer;
 }
 
+.cart-btn {
+  min-width: 300px;
+}
+
 .cart-btn:disabled,
-.comment-form button:disabled,
+.comment-form .submit-comment-btn:disabled,
 .inline-actions button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -176,6 +192,31 @@
   margin: 14px 0;
 }
 
+.rating-picker {
+  display: inline-flex;
+  gap: 6px;
+  width: fit-content;
+  padding: 0;
+}
+
+.star-btn {
+  border: 0;
+  background: transparent;
+  font-size: 52px;
+  line-height: 1;
+  color: #b9b9b9;
+  opacity: 0.45;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
+}
+
+.star-btn.active {
+  color: #e5a000;
+  opacity: 1;
+  transform: scale(1.03);
+}
+
 .comment-form input,
 .comment-form textarea,
 .inline-form input,
@@ -198,6 +239,36 @@
   padding: 14px;
 }
 
+.comment-item header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.author-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+
+.author-meta span {
+  font-size: 12px;
+  color: #666;
+}
+
+.comment-rating {
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: 2px;
+  color: #d2d2d2;
+}
+
+.comment-rating .filled {
+  color: #e5a000;
+}
+
 .comment-item p {
   margin: 8px 0;
   white-space: pre-wrap;
@@ -210,10 +281,11 @@
 
 .comment-actions {
   display: flex;
+  align-items: center;
   gap: 14px;
 }
 
-.comment-actions button {
+.comment-actions .action-link {
   border: 0;
   background: transparent;
   color: #b78300;
@@ -221,6 +293,36 @@
   font-weight: 600;
   cursor: pointer;
   padding: 0;
+}
+
+.heart-like-btn {
+  border: 0;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+}
+
+.heart-like-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.heart-like-btn path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
+
+.heart-like-btn.liked {
+  color: #d14343;
+}
+
+.heart-like-btn.liked path {
+  fill: currentColor;
 }
 
 .inline-actions {
@@ -256,5 +358,21 @@
 
   .count {
     font-size: 20px;
+  }
+
+  .actions-row {
+    justify-content: flex-start;
+  }
+
+  .cart-btn {
+    min-width: 200px;
+  }
+
+  .star-btn {
+    font-size: 40px;
+  }
+
+  .comment-rating {
+    font-size: 24px;
   }
 }

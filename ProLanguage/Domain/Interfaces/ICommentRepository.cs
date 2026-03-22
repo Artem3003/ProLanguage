@@ -4,7 +4,7 @@ namespace Domain.Interfaces;
 
 public interface ICommentRepository : IRepository<Comment>
 {
-    Task<IEnumerable<Comment>> GetByCourseIdAsync(Guid courseId);
+    Task<List<Comment>> GetFlatByCourseIdAsync(Guid courseId);
 
-    Task<Comment?> GetByIdWithChildrenAsync(Guid id);
+    Task<Comment?> GetByIdWithParentAsync(Guid id);
 }

@@ -30,9 +30,6 @@ public class CreateCourseDto
     [Range(1, int.MaxValue, ErrorMessage = "Duration must be at least 1 minute")]
     public int DurationMinutes { get; set; }
 
-    [Range(0, 5, ErrorMessage = "Rating must be between 0 and 5")]
-    public double Rating { get; set; }
-
     public bool IsOnSale { get; set; }
 
     [Range(0, double.MaxValue, ErrorMessage = "Discount price must be a positive number")]

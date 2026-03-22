@@ -106,7 +106,8 @@ export class CommentsList implements OnInit {
     const request: CreateCommentRequest = {
       comment: {
         name: this.commentName.trim(),
-        body: this.commentBody.trim()
+        body: this.commentBody.trim(),
+        rating: 5
       },
       parentId: null,
       action: null
@@ -155,7 +156,8 @@ export class CommentsList implements OnInit {
     const request: CreateCommentRequest = {
       comment: {
         name: this.replyName.trim(),
-        body: formattedBody
+        body: formattedBody,
+        rating: 5
       },
       parentId: this.replyingTo.id,
       action: 'reply'
@@ -182,7 +184,8 @@ export class CommentsList implements OnInit {
     const request: CreateCommentRequest = {
       comment: {
         name: this.replyName.trim(),
-        body: formattedBody
+        body: formattedBody,
+        rating: 5
       },
       parentId: this.quotingComment.id,
       action: 'quote'

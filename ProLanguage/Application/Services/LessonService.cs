@@ -80,8 +80,8 @@ public class LessonService(IUnitOfWork unitOfWork, ILessonRepository lessonRepos
         var lessons = await _lessonRepository.GetAllAsync();
         if (lessons is null || !lessons.Any())
         {
-            _logger.LogError($"No lessons found.");
-            throw new KeyNotFoundException("No lessons found.");
+            _logger.LogInformation("No lessons found. Returning empty collection.");
+            return [];
         }
 
         var result = _mapper.Map<IEnumerable<LessonDto>>(lessons) ?? [];

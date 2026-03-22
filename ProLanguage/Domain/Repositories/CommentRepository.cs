@@ -9,18 +9,18 @@ public class CommentRepository(ApplicationDbContext context) : AbstractRepositor
 {
     private readonly ApplicationDbContext _context = context;
 
-    public async Task<IEnumerable<Comment>> GetByCourseIdAsync(Guid courseId)
+    public async Task<List<Comment>> GetFlatByCourseIdAsync(Guid courseId)
     {
         return await _context.Comments
-            .Where(c => c.CourseId == courseId && c.ParentCommentId == null)
-            .Include(c => c.ChildComments)
+            .Where(c => c.CourseId == courseId)
+            .OrderBy(c => c.CreatedAt)
             .ToListAsync();
     }
 
-    public async Task<Comment?> GetByIdWithChildrenAsync(Guid id)
+    public async Task<Comment?> GetByIdWithParentAsync(Guid id)
     {
         return await _context.Comments
-            .Include(c => c.ChildComments)
+            .Include(c => c.ParentComment)
             .FirstOrDefaultAsync(c => c.Id == id);
     }
 }

@@ -4,9 +4,9 @@ namespace Application.DTOs.Comment;
 
 public class CreateCommentDto
 {
-    [Required(ErrorMessage = "Name is required")]
-    public string Name { get; set; } = string.Empty;
-
     [Required(ErrorMessage = "Body is required")]
     public string Body { get; set; } = string.Empty;
+
+    [Range(1, 5, ErrorMessage = "Rating must be between 1 and 5")]
+    public int Rating { get; set; }
 }

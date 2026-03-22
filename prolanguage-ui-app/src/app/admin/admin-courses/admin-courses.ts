@@ -66,7 +66,6 @@ export class AdminCourses implements OnInit {
       language: CourseLanguage.English,
       level: CourseLevel.Beginner,
       durationMinutes: 0,
-      rating: 0,
       isOnSale: false,
       discountPrice: undefined,
       viewCount: 0,

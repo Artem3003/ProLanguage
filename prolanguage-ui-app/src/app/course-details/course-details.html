@@ -14,26 +14,28 @@
 
         <div class="metrics-row">
           <span class="price">{{ getCoursePriceText() }}</span>
-          <div class="stars" [attr.aria-label]="'Rating ' + (course.rating || 0)">
+          <div class="stars" [attr.aria-label]="'Rating ' + getAverageCommentRating()">
             @for (star of stars; track star) {
-              <span [class.filled]="star <= getFilledStars(course.rating)">★</span>
+              <span [class.filled]="star <= getFilledStars(getAverageCommentRating())">★</span>
             }
           </div>
           <span class="count">{{ getCommentsCount(comments) }} Comments</span>
         </div>
 
         <div class="meta-row">
-          <span>{{ formatDuration(course.durationMinutes) }}</span>
+          <span class="duration-pill">
+            <svg _ngcontent-ng-c2727732764="" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle _ngcontent-ng-c2727732764="" cx="12" cy="12" r="10"></circle><polyline _ngcontent-ng-c2727732764="" points="12 6 12 12 16 14"></polyline></svg>
+            {{ formatDuration(course.durationMinutes) }}</span>
           <span>{{ course.level }}</span>
           <span>{{ course.language }}</span>
         </div>
-      </div>
-    </div>
 
-    <div class="actions-row">
-      <button class="cart-btn" (click)="addToCart()" [disabled]="addingToCart">
-        {{ addingToCart ? 'Adding...' : 'Add to Cart' }}
-      </button>
+        <div class="actions-row">
+          <button class="cart-btn" (click)="addToCart()" [disabled]="addingToCart || addedToCart">
+            {{ addingToCart ? 'Adding...' : (addedToCart ? 'Added to Cart' : 'Add to Cart') }}
+          </button>
+        </div>
+      </div>
     </div>
 
     @if (successMessage) {
@@ -79,9 +81,19 @@
 
       @if (showCommentForm) {
         <div class="comment-form">
-          <input type="text" placeholder="Your name" [(ngModel)]="commentName" />
           <textarea rows="4" placeholder="Write your comment" [(ngModel)]="commentBody"></textarea>
-          <button (click)="submitComment()" [disabled]="loadingComment || !commentName.trim() || !commentBody.trim()">
+          <div class="rating-picker" role="radiogroup" aria-label="Rate your comment">
+            @for (star of stars; track star) {
+              <button
+                type="button"
+                class="star-btn"
+                [class.active]="star <= commentRating"
+                (click)="setCommentRating(star)">
+                ★
+              </button>
+            }
+          </div>
+          <button class="submit-comment-btn" (click)="submitComment()" [disabled]="loadingComment || !commentBody.trim() || commentRating < 1">
             {{ loadingComment ? 'Posting...' : 'Post comment' }}
           </button>
         </div>
@@ -103,31 +115,51 @@
 <ng-template #commentNode let-comment let-depth="depth">
   <article class="comment-item" [style.margin-left.px]="depth * 28">
     <header>
-      <strong>{{ comment.name }}</strong>
+      <div class="author-meta">
+        <strong>{{ comment.name }}</strong>
+        <span>{{ formatCommentDate(comment.createdAt) }}</span>
+      </div>
+      <div class="comment-rating" [attr.aria-label]="'Comment rating ' + comment.rating">
+        @for (star of stars; track star) {
+          <span [class.filled]="star <= comment.rating">★</span>
+        }
+      </div>
     </header>
 
     <p [class.deleted]="comment.body === 'A comment/quote was deleted'">{{ comment.body }}</p>
 
     <div class="comment-actions">
-      <button (click)="startReply(comment)" [disabled]="loadingComment">Reply</button>
-      <button (click)="startQuote(comment)" [disabled]="loadingComment">Quote</button>
-      <button (click)="deleteComment(comment)" [disabled]="loadingComment">Delete</button>
+      <button class="heart-like-btn" (click)="toggleLike(comment)" [disabled]="loadingComment" [class.liked]="isLiked(comment)" aria-label="Like comment">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 21.35 10.55 20.03C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09A5.96 5.96 0 0 1 16.5 3C19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35Z" />
+        </svg>
+        <span>{{ getLikesCount(comment) }}</span>
+      </button>
+      @if (canManageComment(comment)) {
+        <button class="action-link" (click)="startReply(comment)" [disabled]="loadingComment">Reply</button>
+        <button class="action-link" (click)="deleteComment(comment)" [disabled]="loadingComment">Delete</button>
+      }
     </div>
 
     @if (activeParentComment?.id === comment.id) {
       <div class="inline-form">
         <p>
-          @if (activeAction === 'reply') {
-            Replying to {{ comment.name }}
-          }
-          @if (activeAction === 'quote') {
-            Quoting {{ comment.name }}
-          }
+          Replying to {{ comment.name }}
         </p>
-        <input type="text" placeholder="Your name" [(ngModel)]="actionName" />
         <textarea rows="3" placeholder="Write your text" [(ngModel)]="actionBody"></textarea>
+        <div class="rating-picker" role="radiogroup" aria-label="Rate your reply">
+          @for (star of stars; track star) {
+            <button
+              type="button"
+              class="star-btn"
+              [class.active]="star <= actionRating"
+              (click)="setActionRating(star)">
+              ★
+            </button>
+          }
+        </div>
         <div class="inline-actions">
-          <button (click)="submitAction()" [disabled]="loadingComment || !actionName.trim() || !actionBody.trim()">Submit</button>
+          <button (click)="submitAction()" [disabled]="loadingComment || !actionBody.trim() || actionRating < 1">Submit</button>
           <button (click)="cancelActiveAction()" [disabled]="loadingComment">Cancel</button>
         </div>
       </div>

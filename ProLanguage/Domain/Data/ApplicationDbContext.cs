@@ -150,6 +150,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(e => e.Name).IsRequired().HasMaxLength(255);
             entity.Property(e => e.Body).IsRequired();
             entity.Property(e => e.CourseId).IsRequired();
+            entity.Property(e => e.Rating).IsRequired();
+            entity.Property(e => e.IsQuote).IsRequired();
             entity.Property(e => e.IsDeleted).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired();
             entity.HasOne(e => e.ParentComment)
