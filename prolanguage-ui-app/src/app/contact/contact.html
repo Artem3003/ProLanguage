@@ -1,0 +1,41 @@
+<section class="contact-page">
+
+  <h1>Contact <span>Us</span></h1>
+  <p class="subtitle">Leave a request for consultation</p>
+
+  <div class="card">
+    <label>Name</label>
+    <input [(ngModel)]="model.name" type="text" maxlength="100" />
+    @if (isFieldEmpty(model.name)) {
+      <p class="field-error">Name is required.</p>
+    }
+
+    <label>Surname</label>
+    <input [(ngModel)]="model.surname" type="text" maxlength="100" />
+    @if (isFieldEmpty(model.surname)) {
+      <p class="field-error">Surname is required.</p>
+    }
+
+    <label>Email</label>
+    <input [(ngModel)]="model.email" type="email" maxlength="256" />
+    @if (isFieldEmpty(model.email)) {
+      <p class="field-error">Email is required.</p>
+    } @else if (isEmailInvalid()) {
+      <p class="field-error">Please enter a valid email address.</p>
+    }
+
+    <label>Message</label>
+    <textarea [(ngModel)]="model.message" rows="5" maxlength="2000"></textarea>
+    @if (isFieldEmpty(model.message)) {
+      <p class="field-error">Message is required.</p>
+    }
+
+    <button type="button" (click)="send()" [disabled]="loading">
+      {{ loading ? 'Sending...' : 'Send' }}
+    </button>
+  </div>
+
+  @if (errorMessage) {
+    <p class="error">{{ errorMessage }}</p>
+  }
+</section>

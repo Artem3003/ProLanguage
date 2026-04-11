@@ -1,0 +1,145 @@
+.contact-page {
+  position: relative;
+  min-height: 70vh;
+  display: grid;
+  place-items: center;
+  padding: 34px 20px 48px;
+  overflow: hidden;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(48px, 8vw, 72px);
+  line-height: 1;
+  color: #21242b;
+}
+
+h1 span {
+  color: #e2a200;
+}
+
+.subtitle {
+  margin: 10px 0 25px;
+  font-size: clamp(22px, 3vw, 42px);
+  color: #2f3033;
+}
+
+.card {
+  width: min(100%, 520px);
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  border: 1px solid #D9D9D9;
+  padding: 18px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+  display: grid;
+  gap: 10px;
+  z-index: 2;
+}
+
+.card label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.field-error {
+  margin: -4px 0 2px;
+  font-size: 12px;
+  color: #c22727;
+}
+
+.card input,
+.card textarea {
+  width: 100%;
+  display: block;
+  border: 1px solid #cfcfcf;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.4);
+  padding: 10px;
+  font: inherit;
+}
+
+.card input:focus,
+.card textarea:focus {
+  outline: none;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(90deg, #303030, #E5A000) border-box;
+}
+
+.card textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.card button {
+  margin-top: 6px;
+  border: 0;
+  border-radius: 8px;
+  background: #e1a500;
+  color: #151515;
+  font-weight: 700;
+  padding: 11px;
+  cursor: pointer;
+}
+
+.card button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.success,
+.error {
+  z-index: 2;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.success {
+  color: #1a6a2f;
+}
+
+.error {
+  color: #a72626;
+}
+
+.decor {
+  position: absolute;
+  font-size: clamp(130px, 22vw, 300px);
+  line-height: 1;
+  font-weight: 800;
+  color: #cf9312;
+  opacity: 0.8;
+  filter: blur(1.2px);
+  user-select: none;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.decor-p {
+  left: 6%;
+  top: 25%;
+  transform: rotate(-12deg);
+}
+
+.decor-r {
+  right: 6%;
+  top: 23%;
+  transform: rotate(10deg);
+}
+
+.decor-o {
+  left: 23%;
+  bottom: 6%;
+  transform: rotate(-8deg);
+}
+
+@media (max-width: 760px) {
+  .subtitle {
+    text-align: center;
+  }
+
+  .decor {
+    opacity: 0.3;
+  }
+}

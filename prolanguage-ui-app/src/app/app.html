@@ -1,6 +1,9 @@
 @if (isFullScreenRoute()) {
   <router-outlet></router-outlet>
 } @else {
+  @if (flashMessage()) {
+    <div class="global-toast success-toast">{{ flashMessage() }}</div>
+  }
   <app-header></app-header>
   <div class="container">
     <!-- Admin Panel Toggle Button (only visible for admins) -->

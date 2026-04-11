@@ -13,6 +13,8 @@ import { ResetPasswordComponent } from './reset-password/reset-password';
 import { AdminCourses } from './admin/admin-courses/admin-courses';
 import { CommentsList } from './comments-list/comments-list';
 import { CourseDetails } from './course-details/course-details';
+import { ContactComponent } from './contact/contact';
+import { PricingComponent } from './pricing/pricing';
 import { authGuard, guestGuard, roleGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -28,6 +30,8 @@ export const routes: Routes = [
   { path: 'comments', component: CommentsList, canActivate: [authGuard] },
   { path: 'signin', component: SigninComponent, canActivate: [guestGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [guestGuard] },
+  { path: 'pricing', component: PricingComponent },
+  { path: 'contact', component: ContactComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [guestGuard] },
   { path: 'reset-password', component: ResetPasswordComponent, canActivate: [guestGuard] },
   // Admin routes
