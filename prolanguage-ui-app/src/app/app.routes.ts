@@ -15,10 +15,11 @@ import { CommentsList } from './comments-list/comments-list';
 import { CourseDetails } from './course-details/course-details';
 import { ContactComponent } from './contact/contact';
 import { PricingComponent } from './pricing/pricing';
+import { HomeComponent } from './home/home';
 import { authGuard, guestGuard, roleGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/courses', pathMatch: 'full' },
+  { path: '', component: HomeComponent },
   { path: 'courses', component: CoursesList, canActivate: [authGuard] },
   { path: 'courses/:id', component: CourseDetails, canActivate: [authGuard] },
   { path: 'lessons', component: LessonsList, canActivate: [authGuard] },

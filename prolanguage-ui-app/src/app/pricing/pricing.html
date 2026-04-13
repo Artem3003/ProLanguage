@@ -1,0 +1,47 @@
+<section class="pricing-page">
+
+  <h1>Choose your Right plan!</h1>
+  <p class="subtitle">Select from best plans, ensuring a perfect match.</p>
+
+  <div class="billing-switch" role="tablist" aria-label="Billing period">
+    <button
+      type="button"
+      [class.active]="billing === 'monthly'"
+      (click)="setBilling('monthly')">
+      Monthly
+    </button>
+    <button
+      type="button"
+      [class.active]="billing === 'yearly'"
+      (click)="setBilling('yearly')">
+      Yearly
+    </button>
+  </div>
+
+  <div class="plans-grid">
+    @for (plan of plans; track plan.name) {
+      <article class="plan-card" [class.highlighted]="plan.highlighted">
+        <h2>{{ plan.name }}</h2>
+
+        <div class="price-row">
+          @if (getPrice(plan) === 0) {
+            <span class="price free">Free</span>
+            <span class="period">/mo</span>
+          } @else {
+            <span class="currency">₴</span>
+            <span class="price">{{ getPrice(plan) | number }}</span>
+            <span class="period">{{ getPeriodLabel() }}</span>
+          }
+        </div>
+
+        <ul>
+          @for (feature of plan.features; track feature.text) {
+            <li>{{ feature.text }}</li>
+          }
+        </ul>
+
+        <button type="button" class="cta">Get Started</button>
+      </article>
+    }
+  </div>
+</section>
