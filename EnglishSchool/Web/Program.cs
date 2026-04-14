@@ -2,6 +2,7 @@ using Application.Constants;
 using Application.Interfaces;
 using Application.Mappings;
 using Application.Services;
+using AutoMapper;
 using Domain.Data;
 using Domain.Interfaces;
 using Domain.Repositories;
@@ -32,7 +33,13 @@ builder.Services.AddScoped<IHomeworkService, HomeworkService>();
 builder.Services.AddScoped<ILessonService, LessonService>();
 
 // AutoMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddSingleton(sp => new MapperConfiguration(
+    cfg =>
+    {
+        cfg.AddProfile<MappingProfile>();
+    },
+    sp.GetRequiredService<ILoggerFactory>()));
+builder.Services.AddSingleton(sp => sp.GetRequiredService<MapperConfiguration>().CreateMapper());
 
 // Memory Cache
 builder.Services.AddMemoryCache();
