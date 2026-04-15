@@ -32,7 +32,7 @@ builder.Services.AddScoped<IHomeworkService, HomeworkService>();
 builder.Services.AddScoped<ILessonService, LessonService>();
 
 // AutoMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile).Assembly);
 
 // Memory Cache
 builder.Services.AddMemoryCache();
