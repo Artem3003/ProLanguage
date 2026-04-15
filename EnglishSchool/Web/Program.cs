@@ -46,7 +46,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddHttpClient();
 
 // AutoMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddAutoMapper(_ => { }, typeof(MappingProfile));
 
 // Memory Cache
 builder.Services.AddMemoryCache();
