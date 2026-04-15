@@ -1,0 +1,173 @@
+<section class="home-hero">
+
+  <div class="home-hero-content">
+    <h1 class="home-hero-title">Master English with Expert Teachers</h1>
+    <p class="home-hero-subtitle">Learn how to study languages effectively</p>
+    <a class="home-hero-cta" routerLink="/courses">Start Learning Today</a>
+  </div>
+
+  <div class="home-hero-image">
+    <img
+      src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1400&q=80"
+      alt="Students learning English with teacher" />
+  </div>
+</section>
+
+<section class="partners-marquee" aria-label="Our partners and certifications">
+  <div class="partners-marquee-shell">
+    <div class="partners-track">
+      <div class="partner-item"><img src="partners/goethe.png" alt="Goethe-Institut" /></div>
+      <div class="partner-item"><img src="partners/idc.png" alt="IDP" /></div>
+      <div class="partner-item"><img src="partners/ielts.png" alt="IELTS" /></div>
+      <div class="partner-item"><img src="partners/british-council.png" alt="British Council" /></div>
+      <div class="partner-item"><img src="partners/pingo.png" alt="Pingo AI" /></div>
+      <div class="partner-item"><img src="partners/cambridge.png" alt="Cambridge Dictionary" /></div>
+    </div>
+
+    <div aria-hidden="true" class="partners-track">
+      <div class="partner-item"><img src="partners/goethe.png" alt="Goethe-Institut" /></div>
+      <div class="partner-item"><img src="partners/idc.png" alt="IDP" /></div>
+      <div class="partner-item"><img src="partners/ielts.png" alt="IELTS" /></div>
+      <div class="partner-item"><img src="partners/british-council.png" alt="British Council" /></div>
+      <div class="partner-item"><img src="partners/pingo.png" alt="Pingo AI" /></div>
+      <div class="partner-item"><img src="partners/cambridge.png" alt="Cambridge Dictionary" /></div>
+    </div>
+  </div>
+</section>
+
+<section #homeStatsSection class="home-stats" aria-label="Our school in numbers">
+  <div class="home-stats-grid">
+    <article class="home-stat-card">
+      <div class="home-stat-top-row">
+        <img class="home-stat-icon" src="teacher.svg" alt="Teachers" />
+        <p class="home-stat-value">{{ teachersCount }}+</p>
+      </div>
+      <h3 class="home-stat-label">Teachers</h3>
+    </article>
+
+    <article class="home-stat-card">
+      <div class="home-stat-top-row">
+        <img class="home-stat-icon" src="planet.svg" alt="Countries" />
+        <p class="home-stat-value">from {{ countriesCount }}</p>
+      </div>
+      <h3 class="home-stat-label">Countries</h3>
+    </article>
+
+    <article class="home-stat-card">
+      <div class="home-stat-top-row">
+        <img class="home-stat-icon" src="student.svg" alt="Students" />
+        <p class="home-stat-value">{{ studentsCount }}+</p>
+      </div>
+      <h3 class="home-stat-label">Students</h3>
+    </article>
+  </div>
+</section>
+
+<section class="home-ai-tutor" aria-label="AI tutor assistant">
+  <div class="home-ai-tutor-shell">
+    <div class="home-ai-tutor-visual" aria-hidden="true">
+      <span class="home-ai-dot home-ai-dot-top"></span>
+      <span class="home-ai-dot home-ai-dot-bottom"></span>
+      <div class="home-ai-main-circle">
+        <img src="AITutorAvatar.png" alt="AI Tutor mascot" />
+      </div>
+    </div>
+
+    <div class="home-ai-tutor-content">
+      <h2 class="home-ai-tutor-title">Learn Faster with AI Tutor</h2>
+      <p class="home-ai-tutor-text">
+        AI Tutor is an intelligent virtual assistant designed to support learners throughout
+        their language learning journey. It analyzes the learner's level, progress, and typical
+        mistakes to provide personalized explanations, practice tasks, and instant feedback. With
+        AI Tutor, students can practice speaking, grammar, and vocabulary at any time, receive
+        adaptive recommendations, and learn at a comfortable pace, making the learning process
+        more effective, engaging, and accessible 24/7.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="home-video" aria-label="Featured learning video">
+  <div class="home-video-shell">
+    <a
+      class="home-video-link"
+      href="https://www.youtube.com/watch?v=RKK7wGAYP6k"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Watch How Language Shapes the Way You Think on YouTube">
+      <img class="home-video-preview" src="video.png" alt="How language shapes the way you think video preview" />
+      <span class="home-video-play" aria-hidden="true"></span>
+    </a>
+  </div>
+</section>
+
+<section class="home-testimonials" aria-label="Student success stories">
+  <div class="home-testimonials-header">
+    <h2 class="home-testimonials-title">Student Success Stories</h2>
+  </div>
+
+  <div #testimonialsTrack class="home-testimonials-track">
+    <article class="testimonial-card" *ngFor="let testimonial of testimonials">
+      <div class="testimonial-stars" aria-label="Rating {{ testimonial.rating }} out of 5">
+        <span
+          *ngFor="let starIndex of starIndexes"
+          [class.testimonial-star--filled]="starIndex < testimonial.rating">★</span>
+      </div>
+
+      <h3 class="testimonial-title">{{ testimonial.title }}</h3>
+      <p class="testimonial-comment">{{ testimonial.comment }}</p>
+
+      <div class="testimonial-author">
+        <div class="testimonial-avatar" aria-hidden="true">{{ testimonial.name.charAt(0) }}</div>
+        <div class="testimonial-author-meta">
+          <strong>{{ testimonial.name }}</strong>
+          <span>{{ testimonial.date }}</span>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <div class="home-testimonials-controls" aria-label="Testimonial slider controls">
+    <button
+      type="button"
+      class="home-testimonials-arrow home-testimonials-arrow-left"
+      aria-label="Previous testimonials"
+      (click)="scrollTestimonials('previous')">
+      ‹
+    </button>
+    <button
+      type="button"
+      class="home-testimonials-arrow home-testimonials-arrow-right"
+      aria-label="Next testimonials"
+      (click)="scrollTestimonials('next')">
+      ›
+    </button>
+  </div>
+</section>
+
+<section class="home-level-test" aria-label="Free English level test">
+  <div class="home-level-test-shell">
+    <div class="home-level-test-content">
+      <h2 class="home-level-test-title">
+        Discover your current<br />
+        English level by taking our<br />
+        <span>free online test</span>
+      </h2>
+
+      <p class="home-level-test-text">
+        This online level test will give you an approximate indication of your desired language
+        proficiency level. You can use the result that can help you to find courses or learning
+        content on our website that is appropriate for you.
+      </p>
+
+      <a class="home-level-test-cta" routerLink="/contact">Take Test</a>
+    </div>
+
+    <div class="home-level-test-visual" aria-hidden="true">
+      <img
+        class="home-level-test-image"
+        src="take_test.png"
+        alt="" />
+    </div>
+  </div>
+</section>

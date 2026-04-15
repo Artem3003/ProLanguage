@@ -1,10 +1,10 @@
 # Epic 7 - Course Catalog Filters
 
-Extend the functionality of the English School Platform by adding course filtering, pagination, and sorting features.
+Extend the functionality of the ProLanguage website by adding course filtering, pagination, and sorting features.
 
 ## General requirements
 
-Please use the following Angular Front-end: [englishschool-ui-app](englishschool-ui-app)
+Please use the following Angular Front-end: [prolanguage-ui-app](prolanguage-ui-app)
 
 System should support the following features:
 * Course catalog filtration

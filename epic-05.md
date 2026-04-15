@@ -1,5 +1,5 @@
 # Epic 5 - Payment Methods  
-Extend the functionality of the **Pro Language** platform by adding the ability to pay for language courses and subscriptions.
+Extend the functionality of the **Pro Language** web application by adding the ability to pay for language courses and subscriptions.
 
 ## General Requirements  
 Use the existing Angular Front-end: [prolanguage-ui-app](prolanguage-ui-app)  

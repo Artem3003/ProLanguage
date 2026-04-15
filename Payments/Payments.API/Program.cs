@@ -33,7 +33,7 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 // AutoMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile).Assembly);
 
 // CORS
 builder.Services.AddCors(options =>
@@ -54,11 +54,11 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "Payments Microservice API",
         Version = "v1",
-        Description = "Payment processing microservice for English School Platform including payment management, transaction tracking, and refund operations.",
+        Description = "Payment processing microservice for ProLanguage website including payment management, transaction tracking, and refund operations.",
         Contact = new OpenApiContact
         {
             Name = "Payments Support",
-            Email = "payments@englishschool.com",
+            Email = "payments@prolanguage.com",
         },
     });
 

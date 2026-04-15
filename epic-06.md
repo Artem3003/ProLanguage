@@ -1,4 +1,4 @@
-# Epic 9 – Authorization (ProLanguage)
+# Epic 9 – Authorization
 
 ## General requirements
 
@@ -126,20 +126,14 @@ Get all users.
 ```{xml}
 Url: /users  
 Type: GET
-```
-
 Response Example:
-
-```{xml}
-[
-  {
-    "name": "Artem",
-    "id": "454d4d01-406b-4a9b-9f8c-3fec63fc9266"
-  }
-]
+{
+  "name": "Artem",
+  "id": "454d4d01-406b-4a9b-9f8c-3fec63fc9266"
+}
 ```
 
-## E06 US4 – User Story 4
+### E06 US4 – User Story 4
 
 Get user by ID.
 

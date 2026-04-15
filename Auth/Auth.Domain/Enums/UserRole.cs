@@ -1,7 +1,7 @@
 namespace Auth.Domain.Enums;
 
 /// <summary>
-/// Defines the available user roles in the English School Platform.
+/// Defines the available user roles in the ProLanguage.
 /// </summary>
 public enum UserRole
 {
