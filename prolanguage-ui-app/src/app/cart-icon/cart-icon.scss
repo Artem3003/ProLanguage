@@ -10,20 +10,21 @@
   justify-content: center;
   width: 56px;
   height: 56px;
-  background: #3f51b5;
+  background: #f5c518;
   border-radius: 50%;
-  box-shadow: 0 4px 12px rgba(63, 81, 181, 0.4);
+  box-shadow: 0 4px 12px rgba(245, 197, 24, 0.4);
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .cart-icon:hover {
   transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(63, 81, 181, 0.5);
+  background: #d4ab14;
+  box-shadow: 0 6px 16px rgba(212, 171, 20, 0.5);
 }
 
 .cart-icon svg {
-  color: white;
+  color: #1f1a00;
 }
 
 .cart-badge {

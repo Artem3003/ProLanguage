@@ -1,3 +1,8 @@
+:host {
+  display: block;
+  margin: 20px 24px 0;
+}
+
 .orders-container {
   max-width: 800px;
   margin: 0 auto;
@@ -109,8 +114,8 @@
 .btn-primary {
   display: inline-block;
   padding: 12px 24px;
-  background: #3f51b5;
-  color: white;
+  background: #f5c518;
+  color: #1f1a00;
   text-decoration: none;
   border: none;
   border-radius: 8px;
@@ -120,7 +125,7 @@
 }
 
 .btn-primary:hover {
-  background: #303f9f;
+  background: #d4ab14;
 }
 
 .btn-secondary {

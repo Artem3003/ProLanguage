@@ -1,3 +1,8 @@
+:host {
+  display: block;
+  margin: 20px 24px 0;
+}
+
 .homeworks-header {
   display: flex;
   justify-content: space-between;
@@ -55,8 +60,8 @@
 }
 
 .btn-primary {
-  background-color: #3f51b5;
-  color: white;
+  background-color: #f5c518;
+  color: #1f1a00;
   border: none;
   padding: 10px 20px;
   border-radius: 4px;
@@ -66,7 +71,7 @@
 }
 
 .btn-primary:hover {
-  background-color: #303f9f;
+  background-color: #d4ab14;
 }
 
 .btn-secondary {

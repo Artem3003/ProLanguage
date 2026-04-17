@@ -163,8 +163,10 @@ export class AdminCourses implements OnInit {
     this.loading = true;
     this.clearMessages();
 
+    const imagePayload = this.selectedImageFile ? this.imagePreview ?? undefined : undefined;
+
     if (this.isEditing) {
-      this.courseService.updateCourse(this.currentCourse as Course).subscribe({
+      this.courseService.updateCourse(this.currentCourse, imagePayload).subscribe({
         next: () => {
           this.successMessage = 'Course updated successfully';
           this.closeModal();
@@ -179,7 +181,7 @@ export class AdminCourses implements OnInit {
     } else {
       const newCourse = { ...this.currentCourse } as Course;
       delete (newCourse as any).id; // Remove id for new course
-      this.courseService.addCourse(newCourse).subscribe({
+      this.courseService.addCourse(newCourse, imagePayload).subscribe({
         next: () => {
           this.successMessage = 'Course created successfully';
           this.closeModal();

@@ -3,6 +3,16 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Course, CourseFilter, CourseFilterResult, CourseFilterOptions } from '../models/course.model';
 
+interface CreateCourseWithImageRequest {
+  course: Partial<Course>;
+  image?: string;
+}
+
+interface UpdateCourseWithImageRequest {
+  course: Partial<Course>;
+  image?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -79,12 +89,28 @@ export class CourseService {
     return this.http.get<Course>(`${this.baseUrl}/courses/${id}/detail`);
   }
 
-  addCourse(course: Course): Observable<Course> {
-    return this.http.post<Course>(`${this.baseUrl}/courses`, course);
+  getCourseImageUrl(id: string): string {
+    return `${this.baseUrl}/courses/${id}/image`;
   }
 
-  updateCourse(course: Course): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/courses`, course);
+  addCourse(course: Partial<Course>, image?: string): Observable<string> {
+    const { imageUrl, ...coursePayload } = course;
+    const payload: CreateCourseWithImageRequest = { course: coursePayload };
+    if (image) {
+      payload.image = image;
+    }
+
+    return this.http.post<string>(`${this.baseUrl}/courses`, payload);
+  }
+
+  updateCourse(course: Partial<Course>, image?: string): Observable<void> {
+    const { imageUrl, ...coursePayload } = course;
+    const payload: UpdateCourseWithImageRequest = { course: coursePayload };
+    if (image) {
+      payload.image = image;
+    }
+
+    return this.http.put<void>(`${this.baseUrl}/courses`, payload);
   }
 
   deleteCourse(id: string): Observable<void> {
