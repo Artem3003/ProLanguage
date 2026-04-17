@@ -21,7 +21,8 @@ public class CourseService(
     IMemoryCache memoryCache,
     ILogger<CourseService> logger,
     ICourseFilterPipeline filterPipeline,
-    ICoursePaginator paginator) : ICourseService
+    ICoursePaginator paginator,
+    ICourseImageStorageService courseImageStorageService) : ICourseService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly ICourseRepository _courseRepository = courseRepository;
@@ -31,6 +32,7 @@ public class CourseService(
     private readonly int _cacheExpirationMinutes = cacheSettings.Value.DefaultExpirationMinutes;
     private readonly ICourseFilterPipeline _filterPipeline = filterPipeline;
     private readonly ICoursePaginator _paginator = paginator;
+    private readonly ICourseImageStorageService _courseImageStorageService = courseImageStorageService;
 
     public async Task<Guid> CreateCourseAsync(CreateCourseDto dto)
     {
@@ -51,6 +53,11 @@ public class CourseService(
             throw new InvalidOperationException("Course cannot be null.");
         }
 
+        if (!string.IsNullOrWhiteSpace(dto.Image))
+        {
+            course.ImageUrl = await _courseImageStorageService.UploadCourseImageAsync(course.Id, dto.Image);
+        }
+
         _logger.LogDebug($"Mapped course DTO to entity for title: {dto.Title}");
 
         await _courseRepository.AddAsync(course);
@@ -59,6 +66,7 @@ public class CourseService(
         var courseDto = _mapper.Map<CourseDto>(course);
         _memoryCache.Set(CacheKeys.Courses, courseDto, TimeSpan.FromMinutes(_cacheExpirationMinutes));
         _memoryCache.Remove(CacheKeys.TotalCoursesCount);
+        _memoryCache.Remove(CacheKeys.CourseImage(course.Id));
         _logger.LogDebug($"Cleared courses cache after creating course");
 
         _logger.LogInformation($"Successfully created course with ID: {course.Id}, Title: {course.Title}");
@@ -161,11 +169,26 @@ public class CourseService(
         _logger.LogDebug($"Found existing course: {course.Id}, Title: {course.Title}");
 
         _mapper.Map(dto, course);
+
+        if (!string.IsNullOrWhiteSpace(dto.Image))
+        {
+            var previousImageUrl = course.ImageUrl;
+            var newImageUrl = await _courseImageStorageService.UploadCourseImageAsync(course.Id, dto.Image);
+
+            course.ImageUrl = newImageUrl;
+
+            if (!string.IsNullOrWhiteSpace(previousImageUrl))
+            {
+                await _courseImageStorageService.DeleteImageAsync(previousImageUrl);
+            }
+        }
+
         _courseRepository.Update(course);
         await _unitOfWork.SaveChangesAsync();
 
         _memoryCache.Remove(CacheKeys.Courses);
         _memoryCache.Remove(CacheKeys.TotalCoursesCount);
+        _memoryCache.Remove(CacheKeys.CourseImage(course.Id));
         _logger.LogDebug($"Cleared courses cache after updating course");
 
         _logger.LogInformation($"Successfully updated course: {course.Id}, Title: {course.Title}");
@@ -182,11 +205,17 @@ public class CourseService(
             throw new KeyNotFoundException($"Course with ID {id} not found.");
         }
 
+        if (!string.IsNullOrWhiteSpace(course.ImageUrl))
+        {
+            await _courseImageStorageService.DeleteImageAsync(course.ImageUrl);
+        }
+
         _courseRepository.Delete(course);
         await _unitOfWork.SaveChangesAsync();
 
         _memoryCache.Remove(CacheKeys.Courses);
         _memoryCache.Remove(CacheKeys.TotalCoursesCount);
+        _memoryCache.Remove(CacheKeys.CourseImage(id));
         _logger.LogDebug($"Cleared courses cache after deleting course");
 
         _logger.LogInformation($"Successfully deleted course: {course.Id}");
@@ -242,6 +271,72 @@ public class CourseService(
     public List<int> GetPaginationOptions()
     {
         return [9, 18, 36, 72];
+    }
+
+    public async Task<CourseImageDto?> GetCourseImageAsync(Guid id)
+    {
+        _logger.LogInformation($"Retrieving course image for ID: {id}");
+
+        var course = await _courseRepository.GetByIdAsync(id);
+        if (course is null)
+        {
+            _logger.LogError($"Course with ID {id} not found.");
+            throw new KeyNotFoundException($"Course with ID {id} not found.");
+        }
+
+        if (string.IsNullOrWhiteSpace(course.ImageUrl))
+        {
+            return null;
+        }
+
+        var cacheKey = CacheKeys.CourseImage(id);
+        if (_memoryCache.TryGetValue(cacheKey, out CourseImageDto? cachedImage) && cachedImage is not null)
+        {
+            return cachedImage;
+        }
+
+        var imageData = await _courseImageStorageService.GetImageAsync(course.ImageUrl);
+        if (imageData is null)
+        {
+            return null;
+        }
+
+        var imageDto = new CourseImageDto
+        {
+            Content = imageData.Value.Content,
+            ContentType = imageData.Value.ContentType,
+        };
+
+        _memoryCache.Set(cacheKey, imageDto, TimeSpan.FromMinutes(_cacheExpirationMinutes));
+
+        return imageDto;
+    }
+
+    public async Task RemoveCourseImageAsync(Guid id)
+    {
+        _logger.LogInformation($"Removing course image for ID: {id}");
+
+        var course = await _courseRepository.GetByIdAsync(id);
+        if (course is null)
+        {
+            _logger.LogError($"Course with ID {id} not found.");
+            throw new KeyNotFoundException($"Course with ID {id} not found.");
+        }
+
+        if (string.IsNullOrWhiteSpace(course.ImageUrl))
+        {
+            return;
+        }
+
+        await _courseImageStorageService.DeleteImageAsync(course.ImageUrl);
+
+        course.ImageUrl = null;
+        _courseRepository.Update(course);
+        await _unitOfWork.SaveChangesAsync();
+
+        _memoryCache.Remove(CacheKeys.Courses);
+        _memoryCache.Remove(CacheKeys.TotalCoursesCount);
+        _memoryCache.Remove(CacheKeys.CourseImage(id));
     }
 
     public List<KeyValuePair<string, string>> GetSortingOptions()

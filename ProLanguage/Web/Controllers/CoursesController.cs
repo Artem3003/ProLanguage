@@ -16,9 +16,11 @@ public class CoursesController(ICourseService courseService, IOrderService order
 
     [HttpPost]
     [Authorize(Policy = "ContentManagement")]
-    public async Task<ActionResult<Guid>> CreateCourse([FromBody] CreateCourseDto request)
+    public async Task<ActionResult<Guid>> CreateCourse([FromBody] CreateCourseWithImageDto request)
     {
-        var courseId = await _courseService.CreateCourseAsync(request);
+        request.Course.Image = request.Image;
+
+        var courseId = await _courseService.CreateCourseAsync(request.Course);
         return CreatedAtAction(nameof(GetCourseById), new { id = courseId }, courseId);
     }
 
@@ -86,9 +88,34 @@ public class CoursesController(ICourseService courseService, IOrderService order
 
     [HttpPut]
     [Authorize(Policy = "ContentManagement")]
-    public async Task<ActionResult> UpdateCourse([FromBody] UpdateCourseDto request)
+    public async Task<ActionResult> UpdateCourse([FromBody] UpdateCourseWithImageDto request)
     {
-        await _courseService.UpdateCourseAsync(request);
+        request.Course.Image = request.Image;
+
+        await _courseService.UpdateCourseAsync(request.Course);
+        return NoContent();
+    }
+
+    [HttpGet("{id}/image")]
+    [AllowAnonymous]
+    [ResponseCache(Duration = 60)]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetCourseImage(Guid id)
+    {
+        var courseImage = await _courseService.GetCourseImageAsync(id);
+        return courseImage is null
+            ? NotFound()
+            : File(courseImage.Content, courseImage.ContentType);
+    }
+
+    [HttpDelete("{id}/image")]
+    [Authorize(Policy = "ContentManagement")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteCourseImage(Guid id)
+    {
+        await _courseService.RemoveCourseImageAsync(id);
         return NoContent();
     }
 

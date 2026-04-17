@@ -19,6 +19,10 @@ public interface ICourseService
 
     Task DeleteCourseAsync(Guid id);
 
+    Task<CourseImageDto?> GetCourseImageAsync(Guid id);
+
+    Task RemoveCourseImageAsync(Guid id);
+
     /// <summary>
     /// Gets filtered, sorted, and paginated courses.
     /// </summary>

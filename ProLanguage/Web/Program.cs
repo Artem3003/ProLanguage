@@ -9,8 +9,11 @@ using Domain.Data;
 using Domain.Interfaces;
 using Domain.Repositories;
 using Infrastructure.Middleware;
+using Infrastructure.Services;
+using Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -95,6 +98,7 @@ builder.Services.AddScoped<IHomeworkService, HomeworkService>();
 builder.Services.AddScoped<ILessonService, LessonService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<ICourseImageStorageService, CourseImageStorageService>();
 
 // Course Filter Pipeline
 builder.Services.AddScoped<ICourseFilter, CourseFilter>();
@@ -112,6 +116,16 @@ builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile).Assembly);
 builder.Services.AddMemoryCache();
 builder.Services.Configure<CacheSettings>(
     builder.Configuration.GetSection("CacheSettings"));
+builder.Services.Configure<AzureBlobStorageSettings>(
+    builder.Configuration.GetSection(AzureBlobStorageSettings.SectionName));
+builder.Services.AddAzureClients(azureClientBuilder =>
+{
+    var blobConnectionString = builder.Configuration.GetSection(AzureBlobStorageSettings.SectionName)["ConnectionString"];
+    if (!string.IsNullOrWhiteSpace(blobConnectionString))
+    {
+        azureClientBuilder.AddBlobServiceClient(blobConnectionString);
+    }
+});
 
 // Response Caching
 builder.Services.AddResponseCaching();

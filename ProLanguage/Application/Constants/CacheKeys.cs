@@ -12,4 +12,7 @@ public static class CacheKeys
     public const string CourseLanguages = "course-languages";
     public const string CourseLevels = "course-levels";
     public const string CourseRatings = "course-ratings";
+    public const string CourseImagePrefix = "course-image-";
+
+    public static string CourseImage(Guid courseId) => $"{CourseImagePrefix}{courseId}";
 }
