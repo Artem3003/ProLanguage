@@ -1,0 +1,82 @@
+<section class="ai-chat-page" [class.sidebar-collapsed]="!isSidebarOpen">
+  <button class="close-page-btn" type="button" (click)="goHome()" aria-label="Close AI chat" title="Back to home">
+    <span class="close-page-icon" aria-hidden="true"></span>
+  </button>
+
+  <aside class="chat-sidebar" [class.closed]="!isSidebarOpen">
+    <div class="sidebar-header">
+      <div class="sidebar-title-row">
+        <div class="sidebar-title-group">
+          <img class="sidebar-title-logo" src="AITutor_logo.png" alt="AI Tutor logo" />
+          <h2>AI Tutor</h2>
+        </div>
+        <button class="sidebar-toggle" type="button" (click)="toggleSidebar()" aria-label="Close menu" title="Close menu">
+          <span class="sidebar-toggle-icon" aria-hidden="true"></span>
+        </button>
+      </div>
+      <button class="new-chat-btn" type="button" (click)="createNewChat()">+ New Chat</button>
+    </div>
+
+    <div class="history-list">
+      @for (chat of chatHistory; track chat.id) {
+        <button class="history-item" [class.active]="chat.id === activeChatId" (click)="selectChat(chat.id)">
+          <div class="history-text">
+            <strong>{{ chat.title }}</strong>
+            <span>{{ chat.updatedAt }}</span>
+          </div>
+          <span class="delete-chat" title="Delete chat" (click)="deleteChat(chat.id, $event)">×</span>
+        </button>
+      }
+    </div>
+  </aside>
+
+  <div class="chat-main">
+    @if (!isSidebarOpen) {
+      <button class="open-sidebar-btn" type="button" (click)="toggleSidebar()" aria-label="Open chats" title="Open chats">
+        <img class="open-sidebar-logo" src="AITutor_logo.png" alt="AI Tutor logo" />
+        <span class="open-sidebar-icon" aria-hidden="true"></span>
+      </button>
+    }
+
+    <div class="quick-prompts">
+      @for (prompt of quickPrompts; track prompt) {
+        <button (click)="sendQuickPrompt(prompt)">{{ prompt }}</button>
+      }
+    </div>
+
+    <div class="messages-window" [class.is-disabled]="isMessagesWindowDisabled" [attr.aria-disabled]="isMessagesWindowDisabled">
+      <div class="chat-center-visual" aria-hidden="true">
+        <img class="chat-center-sphere" src="AI_circle.png" alt="" />
+        <p [class.is-hidden]="isMessagesWindowDisabled">How can I help you?</p>
+      </div>
+
+      @for (message of activeMessages; track message.id) {
+        <article class="message" [class.message-user]="message.role === 'user'" [class.message-assistant]="message.role === 'assistant'">
+          <p>{{ message.content }}</p>
+        </article>
+      }
+
+      @if (isSending) {
+        <article class="message message-assistant typing">
+          <p>AI Tutor is typing...</p>
+        </article>
+      }
+    </div>
+
+    <form class="composer" (ngSubmit)="sendMessage()">
+      <input
+        type="text"
+        name="message"
+        [(ngModel)]="draftMessage"
+        placeholder="Ask me anything about grammar, speaking, exams, or vocabulary..."
+        [disabled]="isSending"
+      />
+      <button class="send-icon-btn" type="submit" [disabled]="isSending || !draftMessage.trim()" aria-label="Send message" title="Send message">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 5v14" />
+          <path d="M6.5 10.5L12 5l5.5 5.5" />
+        </svg>
+      </button>
+    </form>
+  </div>
+</section>
