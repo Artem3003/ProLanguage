@@ -75,7 +75,9 @@ builder.Services.AddAuthorizationBuilder()
 
 // Database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions => sqlOptions.MigrationsAssembly("Migrations")));
 
 // Repository and Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -116,8 +118,11 @@ builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile).Assembly);
 builder.Services.AddMemoryCache();
 builder.Services.Configure<CacheSettings>(
     builder.Configuration.GetSection("CacheSettings"));
+builder.Services.Configure<AzureOpenAISettings>(
+    builder.Configuration.GetSection(AzureOpenAISettings.SectionName));
 builder.Services.Configure<AzureBlobStorageSettings>(
     builder.Configuration.GetSection(AzureBlobStorageSettings.SectionName));
+builder.Services.AddScoped<IAiChatService, AiChatService>();
 builder.Services.AddAzureClients(azureClientBuilder =>
 {
     var blobConnectionString = builder.Configuration.GetSection(AzureBlobStorageSettings.SectionName)["ConnectionString"];
@@ -218,6 +223,12 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await dbContext.Database.MigrateAsync();
+}
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())

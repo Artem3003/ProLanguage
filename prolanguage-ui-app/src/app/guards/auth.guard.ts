@@ -10,8 +10,7 @@ export const authGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  router.navigate(['/signin'], { queryParams: { returnUrl: state.url } });
-  return false;
+  return router.createUrlTree(['/signin'], { queryParams: { returnUrl: state.url } });
 };
 
 export const guestGuard: CanActivateFn = (route, state) => {
@@ -22,8 +21,7 @@ export const guestGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  router.navigate(['/courses']);
-  return false;
+  return router.createUrlTree(['/courses']);
 };
 
 export const roleGuard: CanActivateFn = (route, state) => {
@@ -31,8 +29,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   if (!authService.isAuthenticated()) {
-    router.navigate(['/signin'], { queryParams: { returnUrl: state.url } });
-    return false;
+    return router.createUrlTree(['/signin'], { queryParams: { returnUrl: state.url } });
   }
 
   const requiredRoles = route.data['roles'] as string[];
@@ -45,6 +42,5 @@ export const roleGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  router.navigate(['/courses']);
-  return false;
+  return router.createUrlTree(['/courses']);
 };
