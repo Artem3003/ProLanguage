@@ -7,6 +7,9 @@
     <nav class="nav">
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-link">Home</a>
       <a routerLink="/courses" routerLinkActive="active" class="nav-link">Courses</a>
+      @if (authService.isAuthenticated()) {
+        <a routerLink="/ai-chat" routerLinkActive="active" class="nav-link">AI Tutor</a>
+      }
       <a routerLink="/pricing" routerLinkActive="active" class="nav-link">Pricing</a>
       <a routerLink="/contact" routerLinkActive="active" class="nav-link">Contact</a>
     </nav>

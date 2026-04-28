@@ -27,7 +27,11 @@ export class App {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
-      this.isFullScreenRoute.set(event.urlAfterRedirects === '/signin' || event.urlAfterRedirects === '/register');
+      this.isFullScreenRoute.set(
+        event.urlAfterRedirects === '/signin'
+        || event.urlAfterRedirects === '/register'
+        || event.urlAfterRedirects === '/ai-chat'
+      );
       this.consumeFlashMessage();
     });
   }

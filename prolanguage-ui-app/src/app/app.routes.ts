@@ -16,6 +16,7 @@ import { CourseDetails } from './course-details/course-details';
 import { ContactComponent } from './contact/contact';
 import { PricingComponent } from './pricing/pricing';
 import { HomeComponent } from './home/home';
+import { AiChatComponent } from './ai-chat/ai-chat';
 import { authGuard, guestGuard, roleGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -33,6 +34,7 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent, canActivate: [guestGuard] },
   { path: 'pricing', component: PricingComponent },
   { path: 'contact', component: ContactComponent },
+  { path: 'ai-chat', component: AiChatComponent, canActivate: [authGuard] },
   { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [guestGuard] },
   { path: 'reset-password', component: ResetPasswordComponent, canActivate: [guestGuard] },
   // Admin routes

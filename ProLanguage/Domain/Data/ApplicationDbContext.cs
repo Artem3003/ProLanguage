@@ -25,6 +25,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     public DbSet<Ban> Bans { get; set; }
 
+    public DbSet<AiChatConversation> AiChatConversations { get; set; }
+
+    public DbSet<AiChatMessage> AiChatMessages { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -171,6 +175,31 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(e => e.UserName).IsRequired().HasMaxLength(255);
             entity.Property(e => e.Duration).IsRequired().HasMaxLength(50);
             entity.Property(e => e.BannedAt).IsRequired();
+        });
+
+        // AI chat conversation configuration
+        modelBuilder.Entity<AiChatConversation>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.CreatedAtUtc).IsRequired();
+            entity.Property(e => e.UpdatedAtUtc).IsRequired();
+            entity.HasIndex(e => new { e.UserId, e.UpdatedAtUtc });
+            entity.HasMany(e => e.Messages)
+                  .WithOne(e => e.Conversation)
+                  .HasForeignKey(e => e.ConversationId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AiChatMessage>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ConversationId).IsRequired();
+            entity.Property(e => e.Role).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.Content).IsRequired();
+            entity.Property(e => e.SentAtUtc).IsRequired();
+            entity.HasIndex(e => new { e.ConversationId, e.SentAtUtc });
         });
     }
 }

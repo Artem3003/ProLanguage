@@ -1,0 +1,94 @@
+<section class="ai-chat-page" [class.sidebar-collapsed]="!isSidebarOpen">
+  <button class="close-page-btn" type="button" (click)="goHome()" aria-label="Close AI chat" title="Back to home">
+    <span class="close-page-icon" aria-hidden="true"></span>
+  </button>
+
+  <aside class="chat-sidebar" [class.closed]="!isSidebarOpen">
+    <div class="sidebar-header">
+      <div class="sidebar-title-row">
+        <div class="sidebar-title-group">
+          <img class="sidebar-title-logo" src="AITutor_logo.png" alt="AI Tutor logo" />
+          <h2>AI Tutor</h2>
+        </div>
+        <button class="sidebar-toggle" type="button" (click)="toggleSidebar()" aria-label="Close menu" title="Close menu">
+          <span class="sidebar-toggle-icon" aria-hidden="true"></span>
+        </button>
+      </div>
+      <button class="new-chat-btn" type="button" (click)="createNewChat()">
+        <svg class="new-chat-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+        <span>New Chat</span>
+      </button>
+    </div>
+
+    <div class="history-list">
+      @for (chat of chatHistory; track chat.id) {
+        <button class="history-item" [class.active]="chat.id === activeChatId" (click)="selectChat(chat.id)">
+          <div class="history-text">
+            <strong>{{ chat.title }}</strong>
+            <span>{{ chat.updatedAt }}</span>
+          </div>
+          <span class="delete-chat" title="Delete chat" (click)="deleteChat(chat.id, $event)">×</span>
+        </button>
+      }
+    </div>
+  </aside>
+
+  <div class="chat-main">
+    @if (!isSidebarOpen) {
+      <button class="open-sidebar-btn" type="button" (click)="toggleSidebar()" aria-label="Open chats" title="Open chats">
+        <img class="open-sidebar-logo" src="AITutor_logo.png" alt="AI Tutor logo" />
+        <span class="open-sidebar-icon" aria-hidden="true"></span>
+      </button>
+    }
+
+    <div class="quick-prompts">
+      @for (prompt of quickPrompts; track prompt) {
+        <button (click)="sendQuickPrompt(prompt)">{{ prompt }}</button>
+      }
+    </div>
+
+    <div #messagesWindow class="messages-window" [class.is-disabled]="isMessagesWindowDisabled" [attr.aria-disabled]="isMessagesWindowDisabled">
+      <div class="chat-center-visual" aria-hidden="true">
+        <img class="chat-center-sphere" src="AI_circle.png" alt="" />
+        <p [class.is-hidden]="isMessagesWindowDisabled">How can I help you?</p>
+      </div>
+
+      @for (message of activeMessages; track message.id) {
+        <article class="message" [class.message-user]="message.role === 'user'" [class.message-assistant]="message.role === 'assistant'">
+          <div class="message-content">
+            {{ message.content }}
+          </div>
+        </article>
+      }
+
+      @if (isSending) {
+        <article class="message message-assistant typing-indicator">
+          <div class="typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </article>
+      }
+    </div>
+
+    <form class="composer" (ngSubmit)="sendMessage()">
+      <input
+        type="text"
+        name="message"
+        [(ngModel)]="draftMessage"
+        placeholder="Ask me anything about grammar, speaking, exams, or vocabulary..."
+        [disabled]="isSending"
+      />
+      <button class="send-icon-btn" type="submit" [disabled]="isSending || !draftMessage.trim()" aria-label="Send message" title="Send message">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 5v14" />
+          <path d="M6.5 10.5L12 5l5.5 5.5" />
+        </svg>
+      </button>
+    </form>
+  </div>
+</section>
