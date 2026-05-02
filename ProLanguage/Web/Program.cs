@@ -118,6 +118,12 @@ builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile).Assembly);
 builder.Services.AddMemoryCache();
 builder.Services.Configure<CacheSettings>(
     builder.Configuration.GetSection("CacheSettings"));
+
+// Distributed Cache - use in-memory distributed cache only (no Redis)
+builder.Services.AddDistributedMemoryCache();
+
+// Big data seeder
+builder.Services.AddScoped<Migrations.Seeders.BigDataSeeder>();
 builder.Services.Configure<AzureOpenAISettings>(
     builder.Configuration.GetSection(AzureOpenAISettings.SectionName));
 builder.Services.Configure<AzureBlobStorageSettings>(
@@ -193,17 +199,17 @@ builder.Services.AddSwaggerGen(c =>
         if (api.ActionDescriptor.RouteValues["controller"] != null)
         {
             var controller = api.ActionDescriptor.RouteValues["controller"];
-            return [controller switch
-            {
-                "Lessons" => "Lessons Management",
-                "Courses" => "Courses Management",
-                "Homeworks" => "Homework Management",
-                "Calendar" => "Calendar Events",
-                "Assignments" => "Homework Assignments",
-                "Comments" => "Comments & Moderation",
-                _ => controller,
-            },
-        ];
+            return [ controller switch
+                {
+                    "Lessons" => "Lessons Management",
+                    "Courses" => "Courses Management",
+                    "Homeworks" => "Homework Management",
+                    "Calendar" => "Calendar Events",
+                    "Assignments" => "Homework Assignments",
+                    "Comments" => "Comments & Moderation",
+                    _ => controller,
+                },
+            ];
         }
 
         return ["General"];
@@ -228,6 +234,14 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await dbContext.Database.MigrateAsync();
+
+    // Optional big-data seeding: set RUN_BIGDATA_SEED=true to run
+    var runSeeder = Environment.GetEnvironmentVariable("RUN_BIGDATA_SEED");
+    if (!string.IsNullOrWhiteSpace(runSeeder) && runSeeder.Equals("true", StringComparison.OrdinalIgnoreCase))
+    {
+        var seeder = scope.ServiceProvider.GetRequiredService<Migrations.Seeders.BigDataSeeder>();
+        await seeder.SeedAsync(dbContext, CancellationToken.None);
+    }
 }
 
 // Configure the HTTP request pipeline

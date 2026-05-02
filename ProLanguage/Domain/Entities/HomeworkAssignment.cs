@@ -7,7 +7,7 @@ public class HomeworkAssignment : BaseEntity<Guid>
 {
     public Guid HomeworkId { get; set; }
 
-    public Homework Homework { get; set; } = null!;
+    public Homework Homework { get; set; }
 
     public string? SubmissionText { get; set; }
 

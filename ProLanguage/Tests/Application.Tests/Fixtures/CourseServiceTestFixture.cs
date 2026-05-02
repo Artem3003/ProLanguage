@@ -6,6 +6,7 @@ using Application.Services;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -30,6 +31,7 @@ public class CourseServiceTestFixture
             MockMapper.Object,
             MockCacheSettings.Object,
             MockMemoryCache.Object,
+            MockDistributedCache.Object,
             MockLogger.Object,
             MockFilterPipeline.Object,
             MockPaginator.Object,
@@ -47,6 +49,8 @@ public class CourseServiceTestFixture
     public Mock<IOptions<CacheSettings>> MockCacheSettings { get; } = new();
 
     public Mock<IMemoryCache> MockMemoryCache { get; } = new();
+
+    public Mock<IDistributedCache> MockDistributedCache { get; } = new();
 
     public Mock<ICourseFilterPipeline> MockFilterPipeline { get; } = new();
 

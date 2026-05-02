@@ -15,13 +15,13 @@ public class CourseFilterPipeline(
     private readonly ICourseSorter _sorter = sorter;
     private readonly ICoursePaginator _paginator = paginator;
 
-    public (IQueryable<Course> Query, int TotalCount) Execute(IQueryable<Course> query, CourseFilterDto filter)
+    public async Task<(IQueryable<Course> Query, int TotalCount)> ExecuteAsync(IQueryable<Course> query, CourseFilterDto filter)
     {
         // Step 1: Apply filters
         var filteredQuery = _filter.Apply(query, filter);
 
-        // Step 2: Get total count before pagination
-        var totalCount = filteredQuery.Count();
+        // Step 2: Get total count before pagination (async)
+        var totalCount = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.CountAsync(filteredQuery);
 
         // Step 3: Apply sorting
         var sortedQuery = _sorter.Apply(filteredQuery, filter.SortBy);

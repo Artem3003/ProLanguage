@@ -14,5 +14,5 @@ public interface ICourseFilterPipeline
     /// <param name="query">The source query.</param>
     /// <param name="filter">The filter criteria.</param>
     /// <returns>Tuple containing the paginated query and total count before pagination.</returns>
-    (IQueryable<Course> Query, int TotalCount) Execute(IQueryable<Course> query, CourseFilterDto filter);
+    Task<(IQueryable<Course> Query, int TotalCount)> ExecuteAsync(IQueryable<Course> query, CourseFilterDto filter);
 }

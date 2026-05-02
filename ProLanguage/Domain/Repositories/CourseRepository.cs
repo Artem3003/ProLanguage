@@ -45,7 +45,7 @@ public class CourseRepository(ApplicationDbContext context) : AbstractRepository
 
     public IQueryable<Course> GetQueryable()
     {
-        return _context.Courses.AsQueryable();
+        return _context.Courses.AsNoTracking().AsQueryable();
     }
 
     public async Task IncrementViewCountAsync(Guid id)

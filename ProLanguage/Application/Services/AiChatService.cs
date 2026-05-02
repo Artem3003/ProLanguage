@@ -293,7 +293,7 @@ public class AiChatService(
 
         if (!string.IsNullOrWhiteSpace(_settings.SystemPrompt))
         {
-            messages.Add(new AzureOpenAIChatMessage
+            messages.Add(new()
             {
                 Role = "system",
                 Content = _settings.SystemPrompt,
@@ -305,7 +305,7 @@ public class AiChatService(
             if (string.Equals(message.Role, "user", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(message.Role, "assistant", StringComparison.OrdinalIgnoreCase))
             {
-                messages.Add(new AzureOpenAIChatMessage
+                messages.Add(new()
                 {
                     Role = message.Role,
                     Content = message.Content,

@@ -127,19 +127,19 @@ public class OrderService(
         {
             PaymentMethods =
             [
-                new PaymentMethodDto
+                new()
                 {
                     ImageUrl = "https://img.icons8.com/color/48/bank-building.png",
                     Title = "Bank",
                     Description = "Payment via bank transfer. Invoice provided.",
                 },
-                new PaymentMethodDto
+                new()
                 {
                     ImageUrl = "https://img.icons8.com/color/48/atm.png",
                     Title = "IBox terminal",
                     Description = "Pay easily through a terminal near you.",
                 },
-                new PaymentMethodDto
+                new()
                 {
                     ImageUrl = "https://img.icons8.com/color/48/visa.png",
                     Title = "Visa",
