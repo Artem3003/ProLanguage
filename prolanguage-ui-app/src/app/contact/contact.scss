@@ -1,5 +1,6 @@
 .contact-page {
   position: relative;
+  z-index: 1;
   min-height: 70vh;
   display: grid;
   place-items: center;
@@ -103,35 +104,34 @@ h1 span {
   color: #a72626;
 }
 
-.decor {
+.contact-letter {
   position: absolute;
-  font-size: clamp(130px, 22vw, 300px);
-  line-height: 1;
-  font-weight: 800;
-  color: #cf9312;
-  opacity: 0.8;
-  filter: blur(1.2px);
-  user-select: none;
+  z-index: -1;
+  width: 350px;
   pointer-events: none;
-  z-index: 1;
+  filter: blur(2px);
 }
 
-.decor-p {
-  left: 6%;
-  top: 25%;
+.letter-p {
+  left: 10%;
+  top: 5%;
   transform: rotate(-12deg);
 }
 
-.decor-r {
-  right: 6%;
+.letter-r {
+  right: 10%;
   top: 23%;
   transform: rotate(10deg);
 }
 
-.decor-o {
+.letter-o {
   left: 23%;
-  bottom: 6%;
+  bottom: 0%;
   transform: rotate(-8deg);
+}
+
+@media (max-width: 1040px) {
+  .contact-letter { width: 250px; }
 }
 
 @media (max-width: 760px) {
@@ -139,7 +139,11 @@ h1 span {
     text-align: center;
   }
 
-  .decor {
-    opacity: 0.3;
-  }
+  .letter-p { left: 1%; }
+  .letter-r { right: 1%; }
+}
+
+@media (max-width: 420px) {
+  .letter-p { left: -10%; }
+  .letter-r { right: -10%; }
 }

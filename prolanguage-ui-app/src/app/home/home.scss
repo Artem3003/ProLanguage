@@ -17,7 +17,36 @@ $font-heading: 'Af Heading', sans-serif;
   margin: 18px 20px 34px;
   padding: 24px 100px;
   border-radius: 10px;
-  overflow: hidden;
+  overflow: visible;
+}
+
+.hero-letter {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  filter: blur(2px);
+}
+
+.letter-r {
+  top: -40px;
+  left: 20px;
+  width: 240px;
+  transform: rotate(15deg);
+}
+
+.letter-p {
+  top: -10px;
+  left: 45%;
+  width: 220px;
+  z-index: 3;
+  transform: rotate(10deg);
+}
+
+.letter-o {
+  bottom: -60px;
+  left: 40%;
+  width: 200px;
+  transform: rotate(-10deg);
 }
 
 .home-hero-content {
@@ -553,8 +582,14 @@ $font-heading: 'Af Heading', sans-serif;
     min-height: 210px;
   }
 
-  .hero-letter {
-    opacity: .34;
+  .letter-o {
+    top: 30%;
+    left: 50%;
+    z-index: 3;
+  }
+
+  .letter-p {
+    z-index: 1;
   }
 
   .home-stats-grid {
@@ -674,6 +709,19 @@ $font-heading: 'Af Heading', sans-serif;
 
   .home-hero-cta {
     font-size: 28px;
+  }
+
+  .hero-letter {
+    width: 160px;
+  }
+
+  .letter-o {
+    left: 80%;
+  }
+
+  .letter-r {
+    top: 0;
+    left: -10%;
   }
 
   .partners-marquee {

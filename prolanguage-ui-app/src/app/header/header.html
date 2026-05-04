@@ -4,24 +4,32 @@
       <img src="ProLanguage.png" alt="Pro Language" class="logo-image" />
     </a>
 
-    <nav class="nav">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-link">Home</a>
-      <a routerLink="/courses" routerLinkActive="active" class="nav-link">Courses</a>
-      @if (authService.isAuthenticated()) {
-        <a routerLink="/ai-chat" routerLinkActive="active" class="nav-link">AI Tutor</a>
-      }
-      <a routerLink="/pricing" routerLinkActive="active" class="nav-link">Pricing</a>
-      <a routerLink="/contact" routerLinkActive="active" class="nav-link">Contact</a>
-    </nav>
+    <button class="burger-menu" (click)="toggleMenu()" [class.open]="isMenuOpen" aria-label="Toggle menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
 
-    <div class="auth-buttons">
-      @if (authService.isAuthenticated()) {
-        <span class="user-greeting">Hello, {{ (authService.currentUser$ | async)?.firstName }}</span>
-        <button (click)="logout()" class="btn btn-logout">Logout</button>
-      } @else {
-        <a routerLink="/signin" class="btn btn-signin">Sign in</a>
-        <a routerLink="/register" class="btn btn-register">Register</a>
-      }
+    <div class="actions-wrapper" [class.open]="isMenuOpen">
+      <nav class="nav">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-link" (click)="isMenuOpen = false">Home</a>
+        <a routerLink="/courses" routerLinkActive="active" class="nav-link" (click)="isMenuOpen = false">Courses</a>
+        @if (authService.isAuthenticated()) {
+          <a routerLink="/ai-chat" routerLinkActive="active" class="nav-link" (click)="isMenuOpen = false">AI Tutor</a>
+        }
+        <a routerLink="/pricing" routerLinkActive="active" class="nav-link" (click)="isMenuOpen = false">Pricing</a>
+        <a routerLink="/contact" routerLinkActive="active" class="nav-link" (click)="isMenuOpen = false">Contact</a>
+      </nav>
+
+      <div class="auth-buttons">
+        @if (authService.isAuthenticated()) {
+          <span class="user-greeting">Hello, {{ (authService.currentUser$ | async)?.firstName }}</span>
+          <button (click)="logout(); isMenuOpen = false" class="btn btn-logout">Logout</button>
+        } @else {
+          <a routerLink="/signin" class="btn btn-signin" (click)="isMenuOpen = false">Sign in</a>
+          <a routerLink="/register" class="btn btn-register" (click)="isMenuOpen = false">Register</a>
+        }
+      </div>
     </div>
   </div>
 </header>
