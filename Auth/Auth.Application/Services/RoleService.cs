@@ -94,7 +94,7 @@ public class RoleService(
     public async Task<IEnumerable<string>> GetUserRolesAsync(Guid userId)
     {
         var user = await userManager.FindByIdAsync(userId.ToString());
-        return user == null ? [] : await userManager.GetRolesAsync(user);
+        return user == null ? Enumerable.Empty<string>() : await userManager.GetRolesAsync(user);
     }
 
     /// <inheritdoc />
@@ -102,7 +102,7 @@ public class RoleService(
     {
         var users = await userManager.GetUsersInRoleAsync(roleName);
 
-        List<UserProfileDto> result = [];
+        var result = new List<UserProfileDto>();
         foreach (var user in users)
         {
             var roles = await userManager.GetRolesAsync(user);

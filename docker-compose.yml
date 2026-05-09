@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Password123!
+    ports:
+      - "1433:1433"
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "Password123!", "-No", "-C", "-Q", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  auth.api:
+    image: prolanguage.auth
+    build:
+      context: ./Auth
+      dockerfile: Dockerfile
+    ports:
+      - "5100:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__AuthConnection=Server=sqlserver;Database=EnglishSchoolAuth_Dev;User Id=sa;Password=Password123!;TrustServerCertificate=True;MultipleActiveResultSets=true
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  payments.api:
+    image: prolanguage.payments
+    build:
+      context: ./Payments
+      dockerfile: Dockerfile
+    ports:
+      - "5200:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__PaymentsConnection=Server=sqlserver;Database=PaymentsDb_Dev;User Id=sa;Password=Password123!;TrustServerCertificate=True;MultipleActiveResultSets=true
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  prolanguage.api:
+    image: prolanguage.web
+    build:
+      context: ./ProLanguage
+      dockerfile: Dockerfile
+    ports:
+      - "5201:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=EnglishSchoolPlatformDb;User Id=sa;Password=Password123!;TrustServerCertificate=True;MultipleActiveResultSets=true
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  prolanguage.ui:
+    image: prolanguage.ui
+    build:
+      context: ./prolanguage-ui-app
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"

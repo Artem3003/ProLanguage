@@ -27,7 +27,7 @@ public class CommentService(
         "1 day",
         "1 week",
         "1 month",
-        "permanent"
+        "permanent",
     ];
 
     public async Task<Guid> AddCommentAsync(Guid courseId, string currentUserName, CreateCommentRequestDto request)
@@ -66,12 +66,7 @@ public class CommentService(
         Comment? parentComment = null;
         if (request.ParentId.HasValue)
         {
-            parentComment = await _commentRepository.GetByIdAsync(request.ParentId.Value);
-            if (parentComment == null)
-            {
-                throw new KeyNotFoundException($"Parent comment with ID {request.ParentId.Value} not found.");
-            }
-
+            parentComment = await _commentRepository.GetByIdAsync(request.ParentId.Value) ?? throw new KeyNotFoundException($"Parent comment with ID {request.ParentId.Value} not found.");
             if (parentComment.CourseId != courseId)
             {
                 throw new InvalidOperationException("Parent comment does not belong to the specified course.");
@@ -143,12 +138,7 @@ public class CommentService(
     {
         _logger.LogInformation("Deleting comment {CommentId} from course {CourseId}", commentId, courseId);
 
-        var comment = await _commentRepository.GetByIdWithParentAsync(commentId);
-        if (comment == null)
-        {
-            throw new KeyNotFoundException($"Comment with ID {commentId} not found.");
-        }
-
+        var comment = await _commentRepository.GetByIdWithParentAsync(commentId) ?? throw new KeyNotFoundException($"Comment with ID {commentId} not found.");
         if (comment.CourseId != courseId)
         {
             throw new InvalidOperationException("Comment does not belong to the specified course.");

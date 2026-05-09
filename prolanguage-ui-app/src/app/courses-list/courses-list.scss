@@ -10,6 +10,11 @@ $font-title: 'Ag Title Hero', sans-serif;
 $font-heading: 'Af Heading', sans-serif;
 $font-body: 'Ag Single Line Boady Base', sans-serif;
 
+:host {
+  display: block;
+  overflow-x: hidden;
+}
+
 // Mixins
 @mixin flex-center {
   display: flex;
@@ -22,6 +27,36 @@ $font-body: 'Ag Single Line Boady Base', sans-serif;
   text-align: center;
   padding: 60px 20px;
   margin-bottom: 30px;
+  position: relative;
+  z-index: 1;
+}
+
+.course-letter {
+  position: absolute;
+  z-index: -2;
+  pointer-events: none;
+  filter: blur(2px);
+}
+
+.letter-p {
+  top: 10px;
+  left: 10%;
+  width: 250px;
+  transform: rotate(-10deg);
+}
+
+.letter-r {
+  top: 0px;
+  right: 10%;
+  width: 260px;
+  transform: rotate(10deg);
+}
+
+.letter-o {
+  top: 60%;
+  left: 30%;
+  width: 280px;
+  transform: rotate(-20deg);
 }
 
 .hero-title {
@@ -55,6 +90,7 @@ $font-body: 'Ag Single Line Boady Base', sans-serif;
   position: relative;
   background: rgba($white, .4);
   border: none;
+  z-index: 1;
 
   &::before {
     content: '';
@@ -406,11 +442,18 @@ $font-body: 'Ag Single Line Boady Base', sans-serif;
 // Responsive
 @media (max-width: 1024px) {
   .courses-grid { grid-template-columns: repeat(2, 1fr); }
+  .course-letter { width: 220px; }
+  .letter-p { left: 5%; }
+  .letter-r { right: 5%; }
 }
 
 @media (max-width: 640px) {
   .courses-grid { grid-template-columns: 1fr; }
   .hero-title { font-size: 32px; }
+  .hero-subtitle { font-size: 18px; }
+  .course-letter { width: 200px; }
+  .letter-p {left: -10%; }
+  .letter-r {right: -10%; }
   .filter-bar {
     justify-content: flex-start;
     overflow-x: auto;

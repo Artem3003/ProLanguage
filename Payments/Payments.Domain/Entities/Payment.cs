@@ -71,5 +71,5 @@ public class Payment : BaseEntity<Guid>
     /// <summary>
     /// Gets or sets the collection of transactions.
     /// </summary>
-    public List<Transaction> Transactions { get; set; } = [];
+    public List<Transaction> Transactions { get; set; } = new();
 }

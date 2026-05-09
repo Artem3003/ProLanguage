@@ -1,8 +1,37 @@
 .pricing-page {
   position: relative;
+  z-index: 1;
   min-height: 70vh;
   padding: 34px 40px 50px;
   overflow: hidden;
+}
+
+.pricing-letter {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  filter: blur(2px);
+}
+
+.letter-p {
+  top: 120px;
+  left: 2%;
+  width: 280px;
+  transform: rotate(-15deg);
+}
+
+.letter-o {
+  top: 500px;
+  left: 22%;
+  width: 290px;
+  transform: rotate(0deg);
+}
+
+.letter-r {
+  top: 100px;
+  right: 5%;
+  width: 320px;
+  transform: rotate(15deg);
 }
 
 h1 {
@@ -38,6 +67,7 @@ h1 {
   border-radius: 6px;
   cursor: pointer;
   color: #444;
+  transition: all 0.3s ease;
 }
 
 .billing-switch button.active {
@@ -188,4 +218,9 @@ li::before {
   .decor {
     opacity: 0.28;
   }
+}
+
+@media (max-width: 640px) {
+  .letter-p { left: -20%; }
+  .letter-r { right: -20%; }
 }

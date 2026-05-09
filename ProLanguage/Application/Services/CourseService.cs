@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Application.Constants;
 using Application.DTOs.Course;
 using Application.Filters;
@@ -7,6 +8,7 @@ using Domain.Entities;
 using Domain.Entities.Enums;
 using Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -19,6 +21,7 @@ public class CourseService(
     IMapper mapper,
     IOptions<CacheSettings> cacheSettings,
     IMemoryCache memoryCache,
+    IDistributedCache distributedCache,
     ILogger<CourseService> logger,
     ICourseFilterPipeline filterPipeline,
     ICoursePaginator paginator,
@@ -32,6 +35,7 @@ public class CourseService(
     private readonly int _cacheExpirationMinutes = cacheSettings.Value.DefaultExpirationMinutes;
     private readonly ICourseFilterPipeline _filterPipeline = filterPipeline;
     private readonly ICoursePaginator _paginator = paginator;
+    private readonly IDistributedCache _distributedCache = distributedCache;
     private readonly ICourseImageStorageService _courseImageStorageService = courseImageStorageService;
 
     public async Task<Guid> CreateCourseAsync(CreateCourseDto dto)
@@ -68,6 +72,16 @@ public class CourseService(
         _memoryCache.Remove(CacheKeys.TotalCoursesCount);
         _memoryCache.Remove(CacheKeys.CourseImage(course.Id));
         _logger.LogDebug($"Cleared courses cache after creating course");
+
+        // Bump distributed cache version to invalidate filter caches
+        try
+        {
+            await _distributedCache.SetStringAsync("courses:version", DateTime.UtcNow.Ticks.ToString());
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to bump courses version in distributed cache");
+        }
 
         _logger.LogInformation($"Successfully created course with ID: {course.Id}, Title: {course.Title}");
 
@@ -191,6 +205,16 @@ public class CourseService(
         _memoryCache.Remove(CacheKeys.CourseImage(course.Id));
         _logger.LogDebug($"Cleared courses cache after updating course");
 
+        // Bump distributed cache version to invalidate filter caches
+        try
+        {
+            await _distributedCache.SetStringAsync("courses:version", DateTime.UtcNow.Ticks.ToString());
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to bump courses version in distributed cache");
+        }
+
         _logger.LogInformation($"Successfully updated course: {course.Id}, Title: {course.Title}");
     }
 
@@ -218,6 +242,16 @@ public class CourseService(
         _memoryCache.Remove(CacheKeys.CourseImage(id));
         _logger.LogDebug($"Cleared courses cache after deleting course");
 
+        // Bump distributed cache version to invalidate filter caches
+        try
+        {
+            await _distributedCache.SetStringAsync("courses:version", DateTime.UtcNow.Ticks.ToString());
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to bump courses version in distributed cache");
+        }
+
         _logger.LogInformation($"Successfully deleted course: {course.Id}");
     }
 
@@ -225,8 +259,45 @@ public class CourseService(
     {
         _logger.LogInformation($"Retrieving filtered courses with filter: Page={filter.Page}, PageSize={filter.PageSize}, SortBy={filter.SortBy}");
 
+        // include a distributed 'version' token in cache key so we can invalidate all filter caches
+        var version = "0";
+        try
+        {
+            var fetched = await _distributedCache.GetStringAsync("courses:version");
+            if (!string.IsNullOrWhiteSpace(fetched))
+            {
+                version = fetched;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to read courses version from distributed cache");
+        }
+
+        // Build cache key from filter properties + version
+        string cacheKey = $"courses:filter:ver={version}:page={filter.Page}:size={filter.PageSize}:sort={filter.SortBy}:title={filter.Title}:min={filter.MinPrice}:max={filter.MaxPrice}:langs={(filter.Languages is null ? string.Empty : string.Join(',', filter.Languages))}:levels={(filter.Levels is null ? string.Empty : string.Join(',', filter.Levels))}:minr={filter.MinRating}:onSale={filter.OnSale}:mindur={filter.MinDuration}:maxdur={filter.MaxDuration}:isNew={filter.IsNew}";
+
+        // Try distributed cache first
+        var cachedBytes = await _distributedCache.GetAsync(cacheKey);
+        if (cachedBytes != null)
+        {
+            try
+            {
+                var cachedResult = JsonSerializer.Deserialize<CourseFilterResultDto>(cachedBytes);
+                if (cachedResult != null)
+                {
+                    _logger.LogInformation($"Returned filtered courses from distributed cache for key: {cacheKey}");
+                    return cachedResult;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to deserialize cached course filter result");
+            }
+        }
+
         var query = _courseRepository.GetQueryable();
-        var (paginatedQuery, totalCount) = _filterPipeline.Execute(query, filter);
+        var (paginatedQuery, totalCount) = await _filterPipeline.ExecuteAsync(query, filter);
 
         var courses = await paginatedQuery.ToListAsync();
         var courseDtos = _mapper.Map<List<CourseDto>>(courses);
@@ -239,6 +310,21 @@ public class CourseService(
             PageSize = filter.PageSize,
             TotalPages = _paginator.CalculateTotalPages(totalCount, filter.PageSize),
         };
+
+        // Serialize and set distributed cache (short TTL configurable in CacheSettings)
+        try
+        {
+            var bytes = JsonSerializer.SerializeToUtf8Bytes(result);
+            var options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_cacheExpirationMinutes),
+            };
+            await _distributedCache.SetAsync(cacheKey, bytes, options);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to set distributed cache for course filters");
+        }
 
         _logger.LogInformation($"Successfully retrieved {courseDtos.Count} courses (page {filter.Page} of {result.TotalPages}, total: {totalCount})");
 
