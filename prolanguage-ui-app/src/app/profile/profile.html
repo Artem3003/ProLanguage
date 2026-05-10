@@ -1,0 +1,45 @@
+<div class="profile-container container mt-5">
+  <h2>User Profile Settings</h2>
+
+  <div class="card mt-4">
+    <div class="card-header">
+      <h4>Notification Preferences</h4>
+    </div>
+    <div class="card-body">
+      <div *ngIf="isLoading()" class="text-center my-3">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <div *ngIf="!isLoading()">
+        <p class="text-muted">Select how you would like to be notified about updates related to your learning and orders.</p>
+
+        <div class="form-check mb-3" *ngFor="let method of availableMethods()">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            [id]="'notification-' + method"
+            [checked]="isSelected(method)"
+            (change)="toggleMethod(method, $event)"
+          >
+          <label class="form-check-label text-capitalize" [for]="'notification-' + method">
+            {{ method }}
+          </label>
+        </div>
+
+        <button
+          class="btn btn-primary mt-3"
+          (click)="savePreferences()"
+          [disabled]="isSaving()">
+          <span *ngIf="isSaving()" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          Save Preferences
+        </button>
+
+        <div *ngIf="successMessage()" class="alert alert-success mt-3" role="alert">
+          {{ successMessage() }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
