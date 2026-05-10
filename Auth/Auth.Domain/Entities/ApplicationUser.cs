@@ -38,6 +38,11 @@ public class ApplicationUser : IdentityUser<Guid>
     public string FullName => $"{FirstName} {LastName}".Trim();
 
     /// <summary>
+    /// Gets or sets the preferred notification methods for this user.
+    /// </summary>
+    public List<string> PreferredNotificationMethods { get; set; } = ["email", "push"];
+
+    /// <summary>
     /// Gets or sets the collection of refresh tokens for this user.
     /// </summary>
     public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = [];

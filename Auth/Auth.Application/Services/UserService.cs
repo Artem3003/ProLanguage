@@ -189,6 +189,36 @@ public class UserService(
         return true;
     }
 
+    /// <inheritdoc />
+    public async Task<List<string>> GetUserNotificationsAsync(Guid userId)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        return user == null ? [] : user.PreferredNotificationMethods ?? [];
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> UpdateUserNotificationsAsync(Guid userId, List<string> notifications)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            return false;
+        }
+
+        user.PreferredNotificationMethods = notifications ?? [];
+        user.UpdatedAt = DateTime.UtcNow;
+
+        var result = await userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            logger.LogWarning("Failed to update notifications for user {UserId}: {Errors}", userId, string.Join(", ", result.Errors.Select(e => e.Description)));
+            return false;
+        }
+
+        logger.LogInformation("Updated notifications for user {UserId}", userId);
+        return true;
+    }
+
     private static UserProfileDto MapToUserProfileDto(ApplicationUser user, IEnumerable<string> roles)
     {
         return new UserProfileDto
