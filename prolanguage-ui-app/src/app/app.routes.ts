@@ -10,6 +10,7 @@ import { SigninComponent } from './signin/signin';
 import { RegisterComponent } from './register/register';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password';
 import { ResetPasswordComponent } from './reset-password/reset-password';
+import { ProfileComponent } from './profile/profile';
 import { AdminCourses } from './admin/admin-courses/admin-courses';
 import { CommentsList } from './comments-list/comments-list';
 import { CourseDetails } from './course-details/course-details';
@@ -35,6 +36,7 @@ export const routes: Routes = [
   { path: 'pricing', component: PricingComponent },
   { path: 'contact', component: ContactComponent },
   { path: 'ai-chat', component: AiChatComponent, canActivate: [authGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
   { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [guestGuard] },
   { path: 'reset-password', component: ResetPasswordComponent, canActivate: [guestGuard] },
   // Admin routes

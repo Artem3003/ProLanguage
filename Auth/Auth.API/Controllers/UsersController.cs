@@ -18,6 +18,7 @@ namespace Auth.API.Controllers;
 public class UsersController(IUserService userService) : ControllerBase
 {
     private readonly IUserService _userService = userService;
+    private static readonly string[] Value = ["sms", "push", "email"];
 
     /// <summary>
     /// Gets the current user's profile.
@@ -186,6 +187,61 @@ public class UsersController(IUserService userService) : ControllerBase
     {
         var result = await _userService.DeleteUserAsync(id);
         return !result ? NotFound() : NoContent();
+    }
+
+    /// <summary>
+    /// Gets all available notification methods.
+    /// </summary>
+    /// <returns>A list of available notification methods.</returns>
+    /// <response code="200">Returns the available notification methods.</response>
+    [HttpGet("notifications")]
+    [ProducesResponseType(typeof(IEnumerable<string>), StatusCodes.Status200OK)]
+    public ActionResult<IEnumerable<string>> GetNotificationMethods()
+    {
+        return Ok(Value);
+    }
+
+    /// <summary>
+    /// Gets the current user's preferred notification methods.
+    /// </summary>
+    /// <returns>A list of notification methods.</returns>
+    /// <response code="200">Returns the user's notification methods.</response>
+    /// <response code="401">User not authenticated.</response>
+    [HttpGet("my/notifications")]
+    [ProducesResponseType(typeof(IEnumerable<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<IEnumerable<string>>> GetMyNotifications()
+    {
+        var userId = GetCurrentUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var notifications = await _userService.GetUserNotificationsAsync(userId.Value);
+        return Ok(notifications);
+    }
+
+    /// <summary>
+    /// Update the current user's notification preferences.
+    /// </summary>
+    /// <param name="request">The update notifications request.</param>
+    /// <returns>No content on success.</returns>
+    /// <response code="204">Notifications updated successfully.</response>
+    /// <response code="401">User not authenticated.</response>
+    [HttpPut("notifications")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> UpdateMyNotifications([FromBody] UpdateNotificationsRequest request)
+    {
+        var userId = GetCurrentUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await _userService.UpdateUserNotificationsAsync(userId.Value, request.Notifications);
+        return !result ? BadRequest("Failed to update notifications.") : NoContent();
     }
 
     private Guid? GetCurrentUserId()

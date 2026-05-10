@@ -111,6 +111,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<ITokenService, TokenService>();
+        services.AddSingleton<INotificationPublisher, ServiceBusNotificationPublisher>();
 
         // Email service
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));

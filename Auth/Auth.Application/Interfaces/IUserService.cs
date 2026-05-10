@@ -60,6 +60,21 @@ public interface IUserService
     Task<bool> ActivateUserAsync(Guid userId);
 
     /// <summary>
+    /// Gets the user's preferred notification methods.
+    /// </summary>
+    /// <param name="userId">The user ID.</param>
+    /// <returns>A list of notification methods.</returns>
+    Task<List<string>> GetUserNotificationsAsync(Guid userId);
+
+    /// <summary>
+    /// Updates a user's preferred notification methods.
+    /// </summary>
+    /// <param name="userId">The user ID.</param>
+    /// <param name="notifications">The new notification methods.</param>
+    /// <returns>True if updated successfully.</returns>
+    Task<bool> UpdateUserNotificationsAsync(Guid userId, List<string> notifications);
+
+    /// <summary>
     /// Deletes a user account.
     /// </summary>
     /// <param name="userId">The user ID.</param>
