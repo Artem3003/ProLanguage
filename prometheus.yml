@@ -1,0 +1,26 @@
+global:
+  scrape_interval: 150s
+  evaluation_interval: 150s
+
+rule_files:
+  - 'alert.rules.yml'
+
+scrape_configs:
+  - job_name: 'auth-api'
+    static_configs:
+      - targets: ['auth.api:8080']
+    metrics_path: '/metrics'
+
+  - job_name: 'payments-api'
+    static_configs:
+      - targets: ['payments.api:8080']
+    metrics_path: '/metrics'
+
+  - job_name: 'prolanguage-api'
+    static_configs:
+      - targets: ['prolanguage.api:8080']
+    metrics_path: '/metrics'
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

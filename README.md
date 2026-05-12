@@ -21,7 +21,6 @@ As a result of completing this task, you will receive an application that includ
 - **UI Design Implementation**: A user-friendly UI aligned with provided Figma/mock-up designs.
 - **Chat and Communication**: Real-time or asynchronous messaging between students and teachers.
 - **Image and File Uploads**: Teachers can upload teaching materials, and students can submit assignments.
-- **NoSQL Integration**: The application utilizes both relational and NoSQL databases where appropriate.
 - **Cloud Readiness**: The website is compatible with cloud services such as Microsoft Azure and AWS.
 
 ## .NET website
@@ -47,4 +46,3 @@ The application is divided into multiple epics. Each epic corresponds to a featu
 | 11.  | Big Data [Microsoft Azure] | Optimize the system for handling large-scale course data. | [prolanguage-epic-11](epic-11.md) |
 | 12.  | Notifications [Microsoft Azure] | Implement user notifications for important events. | [prolanguage-epic-12](epic-12.md) |
 | 13.  | Metrics with Prometheus | Implement metrics collection and monitoring with Prometheus. | [prolanguage-epic-13](epic-13.md) |
-| 14.  | Localization [Angular]| Support multiple languages for the application. | [prolanguage-epic-14](epic-14.md) |

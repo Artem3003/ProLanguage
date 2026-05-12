@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Prometheus;
 using Microsoft.OpenApi.Models;
 using Payments.Application.Interfaces;
 using Payments.Application.Mappings;
@@ -112,7 +113,13 @@ app.UseCors("AllowAll");
 
 app.UseAuthorization();
 
+// Collect HTTP metrics and expose /metrics for Prometheus
+app.UseHttpMetrics();
+
 app.MapControllers();
+
+// Expose Prometheus metrics endpoint
+app.MapMetrics();
 
 Log.Information("Starting Payments Microservice");
 

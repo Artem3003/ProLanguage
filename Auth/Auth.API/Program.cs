@@ -4,6 +4,7 @@ using Auth.Infrastructure.Extensions;
 using Auth.Infrastructure.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Prometheus;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -106,7 +107,13 @@ app.UseCors("AllowAngularApp");
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Collect HTTP metrics and expose /metrics for Prometheus
+app.UseHttpMetrics();
+
 app.MapControllers();
+
+// Expose Prometheus metrics endpoint
+app.MapMetrics();
 
 // Seed default roles
 using (var scope = app.Services.CreateScope())

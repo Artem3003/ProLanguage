@@ -95,6 +95,7 @@ public class CourseService(
         if (_memoryCache.TryGetValue(CacheKeys.Courses, out CourseDto? cachedCourse))
         {
             _logger.LogInformation($"Course found in cache for ID: {id}");
+            Application.Metrics.BusinessMetrics.CoursesViewedTotal.Inc();
             return cachedCourse;
         }
 
@@ -112,6 +113,7 @@ public class CourseService(
         _logger.LogDebug($"Course cached for ID: {id}");
 
         _logger.LogInformation($"Successfully retrieved course: {id}");
+        Application.Metrics.BusinessMetrics.CoursesViewedTotal.Inc();
 
         return courseDto;
     }

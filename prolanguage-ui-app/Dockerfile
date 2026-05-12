@@ -12,6 +12,6 @@ RUN npm run build -- --configuration production
 # Serve using Nginx
 FROM nginx:alpine
 COPY --from=build /app/dist/prolanguage-ui-app/browser /usr/share/nginx/html
-# You can also copy a custom nginx configuration if needed
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

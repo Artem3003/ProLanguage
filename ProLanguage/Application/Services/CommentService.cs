@@ -117,6 +117,8 @@ public class CommentService(
         await UpdateCourseRatingAsync(courseId);
         await _unitOfWork.SaveChangesAsync();
 
+        Application.Metrics.BusinessMetrics.CommentsPostedTotal.Inc();
+
         _logger.LogInformation("Successfully added comment with ID {CommentId} to course {CourseId}", comment.Id, courseId);
 
         return comment.Id;
@@ -184,6 +186,8 @@ public class CommentService(
 
         await _banRepository.AddAsync(ban);
         await _unitOfWork.SaveChangesAsync();
+
+        Application.Metrics.BusinessMetrics.UsersBannedTotal.WithLabels(request.Duration).Inc();
 
         _logger.LogInformation("Successfully banned user {User} for {Duration}", request.User, request.Duration);
     }
