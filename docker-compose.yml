@@ -23,7 +23,7 @@ services:
       - "5100:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__AuthConnection=Server=sqlserver;Database=EnglishSchoolAuth_Dev;User Id=sa;Password=Password123!;TrustServerCertificate=True;MultipleActiveResultSets=true
+      - ConnectionStrings__AuthConnection=Server=sqlserver;Database=ProLanguageAuthDb;User Id=sa;Password=Password123!;TrustServerCertificate=True;MultipleActiveResultSets=true
     depends_on:
       sqlserver:
         condition: service_healthy
@@ -51,7 +51,7 @@ services:
       - "5201:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=EnglishSchoolPlatformDb;User Id=sa;Password=Password123!;TrustServerCertificate=True;MultipleActiveResultSets=true
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=ProLanguagePlatformDb;User Id=sa;Password=Password123!;TrustServerCertificate=True;MultipleActiveResultSets=true
     depends_on:
       sqlserver:
         condition: service_healthy

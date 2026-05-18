@@ -311,3 +311,16 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(245, 197, 24, 0.4);
 }
+
+.input-error {
+  border-color: #c00 !important;
+  background-color: #fff8f8;
+}
+
+.field-error-message {
+  color: #c00;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  padding-left: 0.5rem;
+  text-align: left;
+}

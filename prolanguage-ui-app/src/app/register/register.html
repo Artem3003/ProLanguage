@@ -52,8 +52,16 @@
             name="firstName"
             placeholder="First Name"
             class="form-input"
+            [class.input-error]="fieldErrors['firstname']?.length"
             required
           />
+          @if (fieldErrors['firstname']?.length) {
+            <div class="field-error-message">
+              @for (err of fieldErrors['firstname']; track err) {
+                <span>{{ err }}</span><br>
+              }
+            </div>
+          }
         </div>
 
         <div class="form-group">
@@ -64,7 +72,15 @@
             name="lastName"
             placeholder="Last Name"
             class="form-input"
+            [class.input-error]="fieldErrors['lastname']?.length"
           />
+          @if (fieldErrors['lastname']?.length) {
+            <div class="field-error-message">
+              @for (err of fieldErrors['lastname']; track err) {
+                <span>{{ err }}</span><br>
+              }
+            </div>
+          }
         </div>
 
         <div class="form-group">
@@ -75,8 +91,16 @@
             name="email"
             placeholder="Email"
             class="form-input"
+            [class.input-error]="fieldErrors['email']?.length"
             required
           />
+          @if (fieldErrors['email']?.length) {
+            <div class="field-error-message">
+              @for (err of fieldErrors['email']; track err) {
+                <span>{{ err }}</span><br>
+              }
+            </div>
+          }
         </div>
 
         <div class="form-group">
@@ -87,7 +111,15 @@
             name="phone"
             placeholder="Phone"
             class="form-input"
+            [class.input-error]="fieldErrors['phonenumber']?.length"
           />
+          @if (fieldErrors['phonenumber']?.length) {
+            <div class="field-error-message">
+              @for (err of fieldErrors['phonenumber']; track err) {
+                <span>{{ err }}</span><br>
+              }
+            </div>
+          }
         </div>
 
         <div class="form-group password-group">
@@ -98,6 +130,7 @@
             name="password"
             placeholder="Password"
             class="form-input"
+            [class.input-error]="fieldErrors['password']?.length"
             required
           />
           <button type="button" class="password-toggle" (click)="togglePasswordVisibility()">
@@ -111,6 +144,13 @@
               }
             </svg>
           </button>
+          @if (fieldErrors['password']?.length) {
+            <div class="field-error-message">
+              @for (err of fieldErrors['password']; track err) {
+                <span>{{ err }}</span><br>
+              }
+            </div>
+          }
         </div>
 
         <div class="form-group password-group">
@@ -121,6 +161,7 @@
             name="repeatPassword"
             placeholder="Repeat Password"
             class="form-input"
+            [class.input-error]="fieldErrors['confirmpassword']?.length"
             required
           />
           <button type="button" class="password-toggle" (click)="toggleRepeatPasswordVisibility()">
@@ -134,6 +175,13 @@
               }
             </svg>
           </button>
+          @if (fieldErrors['confirmpassword']?.length) {
+            <div class="field-error-message">
+              @for (err of fieldErrors['confirmpassword']; track err) {
+                <span>{{ err }}</span><br>
+              }
+            </div>
+          }
         </div>
 
         @if (errorMessage) {
