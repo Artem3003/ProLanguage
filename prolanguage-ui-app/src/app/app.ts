@@ -1,5 +1,5 @@
 import { Component, signal, computed } from '@angular/core';
-import { RouterOutlet, RouterModule, Router, NavigationEnd } from '@angular/router';
+import { RouterOutlet, RouterModule, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CartIcon } from './cart-icon/cart-icon';
 import { HeaderComponent } from './header/header';
@@ -9,7 +9,7 @@ import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterModule, CommonModule, CartIcon, HeaderComponent, FooterComponent],
+  imports: [RouterOutlet, RouterModule, RouterLink, RouterLinkActive, CommonModule, CartIcon, HeaderComponent, FooterComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -45,6 +45,10 @@ export class App {
   }
 
   private consumeFlashMessage(): void {
+    if (typeof sessionStorage === 'undefined' || typeof window === 'undefined') {
+      return;
+    }
+
     const message = sessionStorage.getItem('flashSuccessMessage');
     if (!message) {
       return;

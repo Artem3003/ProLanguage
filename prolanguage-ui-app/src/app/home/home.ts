@@ -83,6 +83,10 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   ];
 
   ngAfterViewInit(): void {
+    if (typeof IntersectionObserver === 'undefined') {
+      return;
+    }
+
     this.statsObserver = new IntersectionObserver(
       (entries) => {
         const isVisible = entries.some((entry) => entry.isIntersecting);
