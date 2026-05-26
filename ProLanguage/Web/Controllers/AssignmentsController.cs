@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Web.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 [Tags("Homework Assignments")]
 [Authorize]
 public class AssignmentsController(IHomeworkAssignmentService assignmentService) : ControllerBase

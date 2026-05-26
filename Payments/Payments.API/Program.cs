@@ -1,3 +1,5 @@
+using Azure.Identity;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Prometheus;
 using Microsoft.OpenApi.Models;
@@ -11,6 +13,21 @@ using Payments.Infrastructure.Middleware;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var keyVaultEndpoint = builder.Configuration["KeyVault:Endpoint"];
+if (!string.IsNullOrWhiteSpace(keyVaultEndpoint))
+{
+    builder.Configuration.AddAzureKeyVault(
+        new Uri(keyVaultEndpoint),
+        new DefaultAzureCredential());
+}
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 // Configure Serilog
 builder.Host.UseSerilog((context, configuration) =>
@@ -92,6 +109,8 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
+app.UseForwardedHeaders();
+
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 app.UseMiddleware<RequestLoggingMiddleware>();
 

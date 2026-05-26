@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Web.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 [Tags("AI Chat")]
 [Authorize]
 public class AiChatController(IAiChatService aiChatService, ILogger<AiChatController> logger) : ControllerBase

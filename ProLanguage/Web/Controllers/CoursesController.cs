@@ -7,7 +7,7 @@ using Prometheus;
 namespace Web.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 [Tags("Courses Management")]
 [Authorize]
 public class CoursesController(ICourseService courseService, IOrderService orderService) : ControllerBase

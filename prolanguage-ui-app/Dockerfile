@@ -12,6 +12,9 @@ RUN npm run build -- --configuration production
 # Serve using Nginx
 FROM nginx:alpine
 COPY --from=build /app/dist/prolanguage-ui-app/browser /usr/share/nginx/html
+# Angular SSR builds emit index.csr.html (no plain index.html), so the nginx
+# default index.html survives the COPY. Overwrite it with the CSR entry point.
+RUN mv -f /usr/share/nginx/html/index.csr.html /usr/share/nginx/html/index.html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

@@ -5,6 +5,7 @@ using Application.Filters;
 using Application.Interfaces;
 using Application.Mappings;
 using Application.Services;
+using Azure.Identity;
 using Domain.Data;
 using Domain.Interfaces;
 using Domain.Repositories;
@@ -12,6 +13,7 @@ using Infrastructure.Middleware;
 using Infrastructure.Services;
 using Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Tokens;
@@ -20,6 +22,21 @@ using Prometheus;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var keyVaultEndpoint = builder.Configuration["KeyVault:Endpoint"];
+if (!string.IsNullOrWhiteSpace(keyVaultEndpoint))
+{
+    builder.Configuration.AddAzureKeyVault(
+        new Uri(keyVaultEndpoint),
+        new DefaultAzureCredential());
+}
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 // Add services to the container
 builder.Services.AddControllers()
@@ -265,6 +282,8 @@ if (app.Environment.IsDevelopment())
         c.DocumentTitle = "ProLanguage Platform API Documentation";
     });
 }
+
+app.UseForwardedHeaders();
 
 app.UseHttpsRedirection();
 

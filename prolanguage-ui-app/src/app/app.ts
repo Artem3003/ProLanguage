@@ -27,10 +27,13 @@ export class App {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
+      const urlWithoutQueryParams = event.urlAfterRedirects.split('?')[0];
       this.isFullScreenRoute.set(
-        event.urlAfterRedirects === '/signin'
-        || event.urlAfterRedirects === '/register'
-        || event.urlAfterRedirects === '/ai-chat'
+        urlWithoutQueryParams === '/signin'
+        || urlWithoutQueryParams === '/register'
+        || urlWithoutQueryParams === '/ai-chat'
+        || urlWithoutQueryParams === '/forgot-password'
+        || urlWithoutQueryParams === '/reset-password'
       );
       this.consumeFlashMessage();
     });
