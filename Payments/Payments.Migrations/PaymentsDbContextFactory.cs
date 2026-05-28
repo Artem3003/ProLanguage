@@ -9,14 +9,18 @@ public class PaymentsDbContextFactory : IDesignTimeDbContextFactory<PaymentsDbCo
 {
     public PaymentsDbContext CreateDbContext(string[] args)
     {
-        var configuration = new Microsoft.Extensions.Configuration.ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        var configuration = new ConfigurationBuilder()
+            .AddUserSecrets<PaymentsDbContextFactory>(optional: true)
+            .AddEnvironmentVariables()
             .Build();
 
-        var optionsBuilder = new DbContextOptionsBuilder<PaymentsDbContext>();
-        var connectionString = configuration.GetConnectionString("PaymentsConnection");
+        var connectionString = configuration.GetConnectionString("PaymentsConnection")
+            ?? throw new InvalidOperationException(
+                "ConnectionStrings:PaymentsConnection is not set. Provide it via " +
+                "env var ConnectionStrings__PaymentsConnection or " +
+                "`dotnet user-secrets set \"ConnectionStrings:PaymentsConnection\" \"<value>\" --project Payments/Payments.Migrations`.");
 
+        var optionsBuilder = new DbContextOptionsBuilder<PaymentsDbContext>();
         optionsBuilder.UseSqlServer(connectionString,
             b => b.MigrationsAssembly("Payments.Migrations"));
 

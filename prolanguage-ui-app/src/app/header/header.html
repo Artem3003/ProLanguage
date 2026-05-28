@@ -23,7 +23,10 @@
 
       <div class="auth-buttons">
         @if (authService.isAuthenticated()) {
-          <span class="user-greeting">Hello, {{ (authService.currentUser$ | async)?.firstName }}</span>
+          <div class="user-profile">
+            <span class="user-greeting">{{ (authService.currentUser$ | async)?.firstName }}</span>
+            <img src="https://placehold.co/40x40/png" alt="User Avatar" class="user-avatar" />
+          </div>
           <button (click)="logout(); isMenuOpen = false" class="btn btn-logout">Logout</button>
         } @else {
           <a routerLink="/signin" class="btn btn-signin" (click)="isMenuOpen = false">Sign in</a>

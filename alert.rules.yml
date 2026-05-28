@@ -1,0 +1,29 @@
+groups:
+  - name: prolanguage_alerts
+    rules:
+      - alert: HighErrorRate
+        expr: sum(rate(http_requests_total{status_code=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High HTTP error rate detected"
+          description: "Error rate is above 5% over the last 5 minutes."
+
+      - alert: HighRequestDuration
+        expr: sum(rate(http_request_duration_seconds_sum[5m])) / sum(rate(http_request_duration_seconds_count[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High request duration detected"
+          description: "Average request duration is > 2 seconds over the last 5 minutes."
+
+      - alert: HighMemoryUsage
+        expr: dotnet_total_memory_bytes > 536870912
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected (.NET)"
+          description: "Application process memory exceeds 512 MB."

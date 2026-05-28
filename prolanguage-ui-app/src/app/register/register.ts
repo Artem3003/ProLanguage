@@ -29,6 +29,7 @@ export class RegisterComponent implements AfterViewInit {
   isGoogleLoading = false;
   isAppleLoading = false;
   errorMessage = '';
+  fieldErrors: Record<string, string[]> = {};
   showSuccessPopup = false;
 
   constructor(
@@ -112,6 +113,7 @@ export class RegisterComponent implements AfterViewInit {
 
     this.isLoading = true;
     this.errorMessage = '';
+    this.fieldErrors = {};
 
     const request: RegisterRequest = {
       email: this.email,
@@ -133,7 +135,7 @@ export class RegisterComponent implements AfterViewInit {
       },
       error: (error) => {
         this.isLoading = false;
-        this.errorMessage = this.extractErrorMessage(error, 'Registration failed');
+        this.processErrors(error, 'Registration failed');
       }
     });
   }
@@ -143,44 +145,45 @@ export class RegisterComponent implements AfterViewInit {
     this.router.navigate(['/signin']);
   }
 
-  private extractErrorMessage(error: any, fallback: string): string {
-    // Try to get detailed error message from various response formats
+  private processErrors(error: any, fallback: string): void {
+    this.errorMessage = '';
+    this.fieldErrors = {};
+
     if (error.error) {
       if (typeof error.error === 'string') {
-        return error.error;
+        this.errorMessage = error.error;
+        return;
       }
       if (error.error.errorMessage) {
-        return error.error.errorMessage;
+        this.errorMessage = error.error.errorMessage;
+        return;
       }
       if (error.error.errors) {
-        // Handle validation errors object
         const errors = error.error.errors;
-        const messages: string[] = [];
         for (const key of Object.keys(errors)) {
-          const fieldErrors = errors[key];
-          if (Array.isArray(fieldErrors)) {
-            messages.push(...fieldErrors);
-          } else if (typeof fieldErrors === 'string') {
-            messages.push(fieldErrors);
-          }
+          const lowerKey = key.toLowerCase();
+          const fieldErrs = errors[key];
+          this.fieldErrors[lowerKey] = Array.isArray(fieldErrs) ? fieldErrs : [fieldErrs];
         }
-        if (messages.length > 0) {
-          return messages.join('. ');
-        }
+        return;
       }
       if (error.error.title) {
-        return error.error.title;
+        this.errorMessage = error.error.title;
+        return;
       }
       if (error.error.message) {
-        return error.error.message;
+        this.errorMessage = error.error.message;
+        return;
       }
     }
     if (error.message) {
-      return error.message;
+      this.errorMessage = error.message;
+      return;
     }
     if (error.statusText && error.statusText !== 'OK') {
-      return `${fallback}: ${error.statusText}`;
+      this.errorMessage = `${fallback}: ${error.statusText}`;
+      return;
     }
-    return fallback;
+    this.errorMessage = fallback;
   }
 }

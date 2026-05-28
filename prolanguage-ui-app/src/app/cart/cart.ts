@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, RouterLink } from '@angular/router';
 import { CartItem, PaymentMethod, VisaPaymentModel } from '../models/cart.model';
 import { Course } from '../models/course.model';
 import { CartService } from '../services/cart.service';
@@ -9,7 +9,7 @@ import { CourseService } from '../services/course.service';
 
 @Component({
   selector: 'app-cart',
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, RouterLink],
   templateUrl: './cart.html',
   styleUrl: './cart.scss'
 })
@@ -161,7 +161,7 @@ export class Cart implements OnInit {
     this.cartService.processPayment(paymentRequest).subscribe({
       next: (response) => {
         this.processingPayment = false;
-        
+
         if (this.selectedPaymentMethod === 'Bank' && response instanceof Blob) {
           // Download PDF invoice
           this.downloadInvoice(response);
@@ -169,7 +169,7 @@ export class Cart implements OnInit {
         } else {
           this.success = 'Payment processed successfully!';
         }
-        
+
         this.closePaymentModal();
         this.cartItems = [];
         setTimeout(() => {

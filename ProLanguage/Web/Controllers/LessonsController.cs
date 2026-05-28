@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Web.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 [Tags("Lessons Management")]
 [Authorize]
 public class LessonsController(ILessonService lessonService) : ControllerBase

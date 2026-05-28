@@ -183,6 +183,9 @@ public class OrderService(
             _orderRepository.Update(cart);
             await _unitOfWork.SaveChangesAsync();
 
+            Application.Metrics.BusinessMetrics.OrdersCreatedTotal.WithLabels(OrderStatus.Paid.ToString()).Inc();
+            Application.Metrics.BusinessMetrics.PaymentsProcessedTotal.WithLabels(request.Method, "success").Inc();
+
             return result;
         }
         catch (Exception ex)
@@ -194,6 +197,9 @@ public class OrderService(
             cart.Date = DateTime.UtcNow;
             _orderRepository.Update(cart);
             await _unitOfWork.SaveChangesAsync();
+
+            Application.Metrics.BusinessMetrics.OrdersCreatedTotal.WithLabels(OrderStatus.Cancelled.ToString()).Inc();
+            Application.Metrics.BusinessMetrics.PaymentsProcessedTotal.WithLabels(request.Method, "failure").Inc();
 
             throw;
         }

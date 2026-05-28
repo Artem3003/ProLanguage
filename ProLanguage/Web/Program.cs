@@ -5,6 +5,7 @@ using Application.Filters;
 using Application.Interfaces;
 using Application.Mappings;
 using Application.Services;
+using Azure.Identity;
 using Domain.Data;
 using Domain.Interfaces;
 using Domain.Repositories;
@@ -12,13 +13,30 @@ using Infrastructure.Middleware;
 using Infrastructure.Services;
 using Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Prometheus;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var keyVaultEndpoint = builder.Configuration["KeyVault:Endpoint"];
+if (!string.IsNullOrWhiteSpace(keyVaultEndpoint))
+{
+    builder.Configuration.AddAzureKeyVault(
+        new Uri(keyVaultEndpoint),
+        new DefaultAzureCredential());
+}
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 // Add services to the container
 builder.Services.AddControllers()
@@ -74,10 +92,19 @@ builder.Services.AddAuthorizationBuilder()
         policy.RequireRole("Admin"));
 
 // Database
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddScoped<Infrastructure.Metrics.PrometheusDbCommandInterceptor>();
+builder.Services.AddDbContext<ApplicationDbContext>((sp, options) =>
+{
+    var interceptor = sp.GetRequiredService<Infrastructure.Metrics.PrometheusDbCommandInterceptor>();
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        sqlOptions => sqlOptions.MigrationsAssembly("Migrations")));
+        sqlOptions =>
+        {
+            sqlOptions.MigrationsAssembly("Migrations");
+            sqlOptions.CommandTimeout(120);
+        })
+    .AddInterceptors(interceptor);
+});
 
 // Repository and Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -256,6 +283,8 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseForwardedHeaders();
+
 app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
@@ -267,9 +296,14 @@ app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
 app.UseResponseCaching();
 
+EventCounterAdapter.StartListening();
+
+app.UseHttpMetrics();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapMetrics();
 
 await app.RunAsync();

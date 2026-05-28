@@ -342,3 +342,20 @@ ASALocalRun/
 
 # Local History for Visual Studio
 .localhistory/
+
+# Local secrets — NEVER commit
+.env
+.env.*
+!.env.example
+**/appsettings.Local.json
+**/appsettings.*.Local.json
+secrets.json
+*.pfx
+*.cer
+*.p12
+
+# Local-only infra scripts containing rotated secret values
+infra/*.local.ps1
+infra/*.local.sh
+infra/azure-keyvault-setup.local.ps1
+

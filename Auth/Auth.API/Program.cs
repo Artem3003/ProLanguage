@@ -2,11 +2,29 @@ using Auth.Domain.Data;
 using Auth.Domain.Entities;
 using Auth.Infrastructure.Extensions;
 using Auth.Infrastructure.Middleware;
+using Azure.Identity;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Prometheus;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var keyVaultEndpoint = builder.Configuration["KeyVault:Endpoint"];
+if (!string.IsNullOrWhiteSpace(keyVaultEndpoint))
+{
+    builder.Configuration.AddAzureKeyVault(
+        new Uri(keyVaultEndpoint),
+        new DefaultAzureCredential());
+}
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 // Configure Serilog from appsettings.json
 builder.Host.UseSerilog((context, configuration) =>
@@ -96,6 +114,8 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseForwardedHeaders();
+
 // Global exception handling
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
@@ -106,7 +126,13 @@ app.UseCors("AllowAngularApp");
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Collect HTTP metrics and expose /metrics for Prometheus
+app.UseHttpMetrics();
+
 app.MapControllers();
+
+// Expose Prometheus metrics endpoint
+app.MapMetrics();
 
 // Seed default roles
 using (var scope = app.Services.CreateScope())

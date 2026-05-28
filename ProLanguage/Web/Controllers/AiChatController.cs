@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Web.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 [Tags("AI Chat")]
 [Authorize]
 public class AiChatController(IAiChatService aiChatService, ILogger<AiChatController> logger) : ControllerBase
@@ -68,6 +68,7 @@ public class AiChatController(IAiChatService aiChatService, ILogger<AiChatContro
             return BadRequest(new { message = "Message is required." });
         }
 
+        Application.Metrics.BusinessMetrics.ActiveChatSessions.Inc();
         try
         {
             var response = await _aiChatService.SendMessageAsync(userId.Value, request, cancellationToken);
@@ -81,6 +82,10 @@ public class AiChatController(IAiChatService aiChatService, ILogger<AiChatContro
         {
             _logger.LogError(ex, "AI chat configuration error");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "AI chat is not configured correctly." });
+        }
+        finally
+        {
+            Application.Metrics.BusinessMetrics.ActiveChatSessions.Dec();
         }
     }
 

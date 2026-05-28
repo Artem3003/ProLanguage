@@ -29,7 +29,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       // Only attempt refresh for 401 errors on Auth API endpoints
-      const isAuthApiRequest = req.url.includes('localhost:5100');
+      const isAuthApiRequest = req.url.includes('/api/auth') ||
+                               req.url.includes('/api/users') ||
+                               req.url.includes('/api/roles');
 
       if (error.status === 401 && !isRefreshing && isAuthApiRequest) {
         isRefreshing = true;

@@ -7,7 +7,7 @@ import { Homework } from '../models/homework.model';
   providedIn: 'root'
 })
 export class HomeworkService {
-  private baseUrl = 'http://localhost:5201/homeworks';
+  private baseUrl = '/api/homeworks';
 
   constructor(private http: HttpClient) { }
 

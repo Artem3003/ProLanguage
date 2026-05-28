@@ -18,7 +18,7 @@ public class ContactController(IEmailService emailService, IConfiguration config
     [AllowAnonymous]
     public async Task<IActionResult> Send([FromBody] ContactRequestDto request)
     {
-        var recipient = _configuration["ContactSettings:RecipientEmail"] ?? "ayurchenko987@gmail.com";
+        var recipient = _configuration["ContactSettings:RecipientEmail"];
 
         var safeName = WebUtility.HtmlEncode(request.Name.Trim());
         var safeSurname = WebUtility.HtmlEncode(request.Surname.Trim());
@@ -35,7 +35,7 @@ public class ContactController(IEmailService emailService, IConfiguration config
             <p>{safeMessage}</p>
             """;
 
-        await _emailService.SendEmailAsync(recipient, subject, body);
+        await _emailService.SendEmailAsync(recipient!, subject, body);
         _logger.LogInformation("Contact request sent from {Email} to {Recipient}", request.Email, recipient);
 
         return Ok(new { message = "Message sent successfully." });

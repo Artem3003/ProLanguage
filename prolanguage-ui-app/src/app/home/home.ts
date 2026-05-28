@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 interface Testimonial {
   name: string;
@@ -33,6 +34,20 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   private hasAnimatedStats = false;
   private statsObserver?: IntersectionObserver;
   private animationFrameIds: number[] = [];
+
+  constructor(private router: Router, private authService: AuthService) {}
+
+  goToAiChat(query?: string) {
+    if (this.authService.isAuthenticated()) {
+      if (query && query.trim()) {
+        this.router.navigate(['/ai-chat'], { queryParams: { q: query } });
+      } else {
+        this.router.navigate(['/ai-chat']);
+      }
+    } else {
+      this.router.navigate(['/signin']);
+    }
+  }
 
   partnerLogos: string[] = [
     'goethe',
@@ -83,6 +98,10 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   ];
 
   ngAfterViewInit(): void {
+    if (typeof IntersectionObserver === 'undefined') {
+      return;
+    }
+
     this.statsObserver = new IntersectionObserver(
       (entries) => {
         const isVisible = entries.some((entry) => entry.isIntersecting);

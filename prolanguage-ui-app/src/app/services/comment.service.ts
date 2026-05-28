@@ -7,7 +7,7 @@ import { Comment, CreateCommentRequest, BanRequest } from '../models/comment.mod
   providedIn: 'root'
 })
 export class CommentService {
-  private baseUrl = 'http://localhost:5201';
+  private baseUrl = '/api';
 
   constructor(private http: HttpClient) { }
 

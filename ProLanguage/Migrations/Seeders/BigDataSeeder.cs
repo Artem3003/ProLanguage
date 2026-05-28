@@ -11,8 +11,8 @@ public class BigDataSeeder(ILogger<BigDataSeeder> logger)
 
     public async Task SeedAsync(ApplicationDbContext dbContext, CancellationToken cancellationToken)
     {
-        const int targetCourses = 100_000;
-        const int targetLessons = 500_000;
+        const int targetCourses = 10_000;
+        const int targetLessons = 50_000;
 
         var existingCourses = await dbContext.Courses.AsNoTracking().CountAsync(cancellationToken);
         if (existingCourses >= targetCourses)

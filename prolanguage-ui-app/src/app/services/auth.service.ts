@@ -8,7 +8,7 @@ import { AuthResponse, LoginRequest, RegisterRequest, RefreshTokenRequest, Exter
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly apiUrl = 'http://localhost:5100/api/auth';
+  private readonly apiUrl = '/api/auth';
 
   private currentUserSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -79,12 +79,14 @@ export class AuthService {
   }
 
   logout(): void {
-    const refreshToken = localStorage.getItem('refreshToken');
+    if (typeof localStorage !== 'undefined') {
+      const refreshToken = localStorage.getItem('refreshToken');
 
-    if (refreshToken) {
-      this.http.post(`${this.apiUrl}/logout`, { refreshToken }).subscribe({
-        error: () => {}
-      });
+      if (refreshToken) {
+        this.http.post(`${this.apiUrl}/logout`, { refreshToken }).subscribe({
+          error: () => {}
+        });
+      }
     }
 
     this.clearSession();
@@ -92,9 +94,11 @@ export class AuthService {
   }
 
   private setSession(response: AuthResponse): void {
-    localStorage.setItem('accessToken', response.accessToken);
-    localStorage.setItem('refreshToken', response.refreshToken);
-    localStorage.setItem('tokenExpiration', response.accessTokenExpiration.toString());
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('accessToken', response.accessToken);
+      localStorage.setItem('refreshToken', response.refreshToken);
+      localStorage.setItem('tokenExpiration', response.accessTokenExpiration.toString());
+    }
 
     const user: User = {
       userId: response.userId,
@@ -103,32 +107,40 @@ export class AuthService {
       lastName: response.lastName,
       roles: response.roles
     };
-    localStorage.setItem('user', JSON.stringify(user));
+
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('user', JSON.stringify(user));
+    }
 
     this.currentUserSubject.next(user);
     this.isAuthenticatedSignal.set(true);
   }
 
   private clearSession(): void {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('tokenExpiration');
-    localStorage.removeItem('user');
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('tokenExpiration');
+      localStorage.removeItem('user');
+    }
 
     this.currentUserSubject.next(null);
     this.isAuthenticatedSignal.set(false);
   }
 
   getAccessToken(): string | null {
+    if (typeof localStorage === 'undefined') return null;
     return localStorage.getItem('accessToken');
   }
 
   private getUserFromStorage(): User | null {
+    if (typeof localStorage === 'undefined') return null;
     const userJson = localStorage.getItem('user');
     return userJson ? JSON.parse(userJson) : null;
   }
 
   private hasValidToken(): boolean {
+    if (typeof localStorage === 'undefined') return false;
     const token = localStorage.getItem('accessToken');
     const expiration = localStorage.getItem('tokenExpiration');
 

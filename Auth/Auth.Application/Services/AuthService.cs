@@ -463,12 +463,11 @@ public class AuthService(
         var user = await userManager.FindByEmailAsync(request.Email);
         if (user == null)
         {
-            // Don't reveal that the user doesn't exist for security
             logger.LogWarning("Password reset requested for non-existent email: {Email}", request.Email);
             return new PasswordResetResponseDto
             {
-                IsSuccess = true,
-                Message = "If an account with that email exists, a password reset link has been sent.",
+                IsSuccess = false,
+                ErrorMessage = "User with this email does not exist.",
             };
         }
 
@@ -477,8 +476,8 @@ public class AuthService(
             logger.LogWarning("Password reset requested for deactivated account: {Email}", request.Email);
             return new PasswordResetResponseDto
             {
-                IsSuccess = true,
-                Message = "If an account with that email exists, a password reset link has been sent.",
+                IsSuccess = false,
+                ErrorMessage = "This account has been deactivated.",
             };
         }
 
@@ -506,7 +505,7 @@ public class AuthService(
         return new PasswordResetResponseDto
         {
             IsSuccess = true,
-            Message = "If an account with that email exists, a password reset link has been sent.",
+            Message = "A password reset link has been sent to your email.",
         };
     }
 

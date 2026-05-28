@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Web.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 [Tags("Calendar Events")]
 [Authorize]
 public class CalendarController(ICalendarEventService calendarEventService) : ControllerBase

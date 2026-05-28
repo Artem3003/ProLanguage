@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AiChatService } from '../services/ai-chat.service';
 import { AiChatConversationMessages, AiChatConversationSummary, AiChatMessageDto } from '../models/ai-chat.model';
 
@@ -49,12 +49,22 @@ export class AiChatComponent {
   private messagesWindowEl?: ElementRef<HTMLElement>;
 
   constructor(
+    private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly aiChatService: AiChatService
   ) {}
 
   ngOnInit(): void {
-    this.loadConversations();
+    const query = this.route.snapshot.queryParamMap.get('q');
+    if (query) {
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { q: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true
+      });
+    }
+    this.loadConversations(query);
   }
 
   get activeMessages(): ChatMessage[] {
@@ -275,10 +285,16 @@ export class AiChatComponent {
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
   }
 
-  private loadConversations(): void {
+  private loadConversations(initialQuery?: string | null): void {
     this.aiChatService.getConversations().subscribe({
       next: conversations => {
         this.chatHistory = conversations.map(conversation => this.mapConversationSummary(conversation));
+
+        if (initialQuery) {
+          this.createNewChat();
+          setTimeout(() => this.sendQuickPrompt(initialQuery), 0);
+          return;
+        }
 
         if (this.chatHistory.length > 0) {
           this.activeChatId = this.chatHistory[0].id;
@@ -290,6 +306,9 @@ export class AiChatComponent {
       },
       error: () => {
         this.createNewChat();
+        if (initialQuery) {
+          setTimeout(() => this.sendQuickPrompt(initialQuery), 0);
+        }
       }
     });
   }

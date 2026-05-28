@@ -2,15 +2,19 @@ using Application.DTOs.Course;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Prometheus;
 
 namespace Web.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 [Tags("Courses Management")]
 [Authorize]
 public class CoursesController(ICourseService courseService, IOrderService orderService) : ControllerBase
 {
+    private static readonly Counter CourseViewsCounter = Metrics.CreateCounter("prolanguage_courses_viewed_total", "Total number of times a course was viewed.");
+    private static readonly Counter FilterSearchesCounter = Metrics.CreateCounter("prolanguage_courses_searched_total", "Total number of filtered course searches.");
+
     private readonly ICourseService _courseService = courseService;
     private readonly IOrderService _orderService = orderService;
 
@@ -36,6 +40,7 @@ public class CoursesController(ICourseService courseService, IOrderService order
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CourseDto>> GetCourseDetail(Guid id)
     {
+        CourseViewsCounter.Inc();
         var course = await _courseService.GetCourseDetailAsync(id);
         return Ok(course);
     }
@@ -59,6 +64,7 @@ public class CoursesController(ICourseService courseService, IOrderService order
     [ProducesResponseType(typeof(CourseFilterResultDto), StatusCodes.Status200OK)]
     public async Task<ActionResult<CourseFilterResultDto>> GetFilteredCourses([FromQuery] CourseFilterDto filter)
     {
+        FilterSearchesCounter.Inc();
         var result = await _courseService.GetFilteredCoursesAsync(filter);
         return Ok(result);
     }
