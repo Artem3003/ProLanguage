@@ -1,0 +1,65 @@
+name: Deploy to Azure Container Apps
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # required for OIDC federated login to Azure
+  contents: read
+
+env:
+  RESOURCE_GROUP: rg-prolanguage-prod-plc-001
+  ACR_LOGIN_SERVER: prolanguage.azurecr.io
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: prolanguage-auth
+            context: ./Auth
+            dockerfile: ./Auth/Dockerfile
+          - app: prolanguage-payments
+            context: ./Payments
+            dockerfile: ./Payments/Dockerfile
+          - app: prolanguage-web
+            context: ./ProLanguage
+            dockerfile: ./ProLanguage/Dockerfile
+          - app: prolanguage-ui
+            context: ./prolanguage-ui-app
+            dockerfile: ./prolanguage-ui-app/Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: ACR docker login
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+          password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+
+      - name: Build and push image
+        run: |
+          IMAGE_SHA=${{ env.ACR_LOGIN_SERVER }}/${{ matrix.app }}:${{ github.sha }}
+          IMAGE_LATEST=${{ env.ACR_LOGIN_SERVER }}/${{ matrix.app }}:latest
+          docker build -t "$IMAGE_SHA" -t "$IMAGE_LATEST" -f ${{ matrix.dockerfile }} ${{ matrix.context }}
+          docker push "$IMAGE_SHA"
+          docker push "$IMAGE_LATEST"
+
+      - name: Deploy to Container App
+        run: |
+          az containerapp update \
+            -n ${{ matrix.app }} \
+            -g ${{ env.RESOURCE_GROUP }} \
+            --image ${{ env.ACR_LOGIN_SERVER }}/${{ matrix.app }}:${{ github.sha }}

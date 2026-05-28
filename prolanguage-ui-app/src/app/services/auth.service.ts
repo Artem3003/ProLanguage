@@ -8,7 +8,7 @@ import { AuthResponse, LoginRequest, RegisterRequest, RefreshTokenRequest, Exter
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly apiUrl = 'http://localhost:5100/api/auth';
+  private readonly apiUrl = '/api/auth';
 
   private currentUserSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
   public currentUser$ = this.currentUserSubject.asObservable();

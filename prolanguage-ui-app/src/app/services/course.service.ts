@@ -17,7 +17,7 @@ interface UpdateCourseWithImageRequest {
   providedIn: 'root'
 })
 export class CourseService {
-  private baseUrl = 'http://localhost:5201';
+  private baseUrl = '/api';
 
   constructor(private http: HttpClient) { }
 

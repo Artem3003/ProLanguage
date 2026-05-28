@@ -12,7 +12,7 @@ import {
   providedIn: 'root'
 })
 export class AiChatService {
-  private readonly baseUrl = 'http://localhost:5201';
+  private readonly baseUrl = '/api';
 
   constructor(private readonly http: HttpClient) { }
 

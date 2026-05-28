@@ -14,7 +14,7 @@ import {
   providedIn: 'root'
 })
 export class CartService {
-  private baseUrl = 'http://localhost:5201';
+  private baseUrl = '/api';
 
   // BehaviorSubject to track cart items count
   private cartItemsCountSubject = new BehaviorSubject<number>(0);
