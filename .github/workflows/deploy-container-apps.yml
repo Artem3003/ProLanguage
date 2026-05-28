@@ -21,15 +21,20 @@ jobs:
       matrix:
         include:
           - app: prolanguage-auth
+            image: prolanguage-auth
             context: ./Auth
             dockerfile: ./Auth/Dockerfile
           - app: prolanguage-payments
+            image: prolanguage-payments
             context: ./Payments
             dockerfile: ./Payments/Dockerfile
           - app: prolanguage-web
+            image: prolanguage-web
             context: ./ProLanguage
             dockerfile: ./ProLanguage/Dockerfile
-          - app: prolanguage-ui
+          # UI: container app is named `prolanguage` but image repo is `prolanguage-ui`
+          - app: prolanguage
+            image: prolanguage-ui
             context: ./prolanguage-ui-app
             dockerfile: ./prolanguage-ui-app/Dockerfile
     steps:
@@ -51,8 +56,8 @@ jobs:
 
       - name: Build and push image
         run: |
-          IMAGE_SHA=${{ env.ACR_LOGIN_SERVER }}/${{ matrix.app }}:${{ github.sha }}
-          IMAGE_LATEST=${{ env.ACR_LOGIN_SERVER }}/${{ matrix.app }}:latest
+          IMAGE_SHA=${{ env.ACR_LOGIN_SERVER }}/${{ matrix.image }}:${{ github.sha }}
+          IMAGE_LATEST=${{ env.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest
           docker build -t "$IMAGE_SHA" -t "$IMAGE_LATEST" -f ${{ matrix.dockerfile }} ${{ matrix.context }}
           docker push "$IMAGE_SHA"
           docker push "$IMAGE_LATEST"
@@ -62,4 +67,4 @@ jobs:
           az containerapp update \
             -n ${{ matrix.app }} \
             -g ${{ env.RESOURCE_GROUP }} \
-            --image ${{ env.ACR_LOGIN_SERVER }}/${{ matrix.app }}:${{ github.sha }}
+            --image ${{ env.ACR_LOGIN_SERVER }}/${{ matrix.image }}:${{ github.sha }}
