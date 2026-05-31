@@ -89,7 +89,8 @@
       },
       "targets": [
         {
-          "expr": "rate(http_requests_total[5m])",
+          "expr": "sum by (job) (rate(http_requests_received_total[5m]))",
+          "legendFormat": "{{job}}",
           "refId": "A"
         }
       ],
@@ -251,13 +252,13 @@
       },
       "targets": [
         {
-          "expr": "rate(http_requests_total{status=~\"5..\"}[5m])",
-          "legendFormat": "5xx Errors",
+          "expr": "sum by (job) (rate(http_requests_received_total{code=~\"5..\"}[5m]))",
+          "legendFormat": "5xx {{job}}",
           "refId": "A"
         },
         {
-          "expr": "rate(http_requests_total{status=~\"4..\"}[5m])",
-          "legendFormat": "4xx Errors",
+          "expr": "sum by (job) (rate(http_requests_received_total{code=~\"4..\"}[5m]))",
+          "legendFormat": "4xx {{job}}",
           "refId": "B"
         }
       ],

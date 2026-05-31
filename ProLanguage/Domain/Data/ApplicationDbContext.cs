@@ -1,5 +1,6 @@
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Domain.Data;
 
@@ -201,5 +202,32 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(e => e.SentAtUtc).IsRequired();
             entity.HasIndex(e => new { e.ConversationId, e.SentAtUtc });
         });
+
+        // All DateTime values are stored as UTC. SQL Server does not persist the
+        // DateTimeKind, so EF materializes them as Unspecified, which serializes to
+        // JSON without a 'Z' suffix and makes clients treat them as local time.
+        // Tag every DateTime read from the database as UTC so it serializes with 'Z'
+        // and the client can convert it to its own local time zone.
+        var utcConverter = new ValueConverter<DateTime, DateTime>(
+            v => v,
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+        var utcNullableConverter = new ValueConverter<DateTime?, DateTime?>(
+            v => v,
+            v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTime))
+                {
+                    property.SetValueConverter(utcConverter);
+                }
+                else if (property.ClrType == typeof(DateTime?))
+                {
+                    property.SetValueConverter(utcNullableConverter);
+                }
+            }
+        }
     }
 }
