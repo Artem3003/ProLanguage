@@ -58,9 +58,7 @@
 
       @for (message of activeMessages; track message.id) {
         <article class="message" [class.message-user]="message.role === 'user'" [class.message-assistant]="message.role === 'assistant'">
-          <div class="message-content">
-            {{ message.content }}
-          </div>
+          <div class="message-content" [innerHTML]="message.content | aiContent"></div>
         </article>
       }
 

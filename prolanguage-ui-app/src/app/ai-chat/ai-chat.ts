@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AiChatService } from '../services/ai-chat.service';
 import { AiChatConversationMessages, AiChatConversationSummary, AiChatMessageDto } from '../models/ai-chat.model';
+import { AiContentPipe } from '../pipes/ai-content.pipe';
 
 interface ChatHistoryItem {
   id: string;
@@ -21,7 +22,7 @@ interface ChatMessage {
 @Component({
   selector: 'app-ai-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AiContentPipe],
   templateUrl: './ai-chat.html',
   styleUrl: './ai-chat.scss'
 })

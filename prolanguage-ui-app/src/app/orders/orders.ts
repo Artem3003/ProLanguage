@@ -95,7 +95,17 @@ export class Orders implements OnInit {
   }
 
   formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    if (!dateString) {
+      return '';
+    }
+
+    // Order dates are stored in UTC. If the value has no time-zone designator,
+    // treat it as UTC so the browser converts it to the client's local time zone.
+    const hasTimeZone = /[zZ]|[+-]\d{2}:?\d{2}$/.test(dateString);
+    const utcDate = hasTimeZone ? dateString : `${dateString}Z`;
+
+    // `undefined` locale + no timeZone option => the client's own locale and zone.
+    return new Date(utcDate).toLocaleString(undefined, {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
