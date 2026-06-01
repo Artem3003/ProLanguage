@@ -62,10 +62,7 @@ h1 span {
 .card input:focus,
 .card textarea:focus {
   outline: none;
-  border: 1px solid transparent;
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4)) padding-box,
-    linear-gradient(90deg, #303030, #E5A000) border-box;
+  border: 1px solid #2C2C2C;
 }
 
 .card textarea {
