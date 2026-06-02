@@ -13,7 +13,7 @@ public class CommentsController(ICommentService commentService) : ControllerBase
 {
     private readonly ICommentService _commentService = commentService;
 
-    [HttpPost("courses/{id}/comments")]
+    [HttpPost("api/courses/{id}/comments")]
     public async Task<ActionResult<Guid>> AddComment(Guid id, [FromBody] CreateCommentRequestDto request)
     {
         var currentUserName = ResolveCurrentUserDisplayName();
@@ -26,7 +26,7 @@ public class CommentsController(ICommentService commentService) : ControllerBase
         return CreatedAtAction(nameof(GetCommentsByCourseId), new { id }, commentId);
     }
 
-    [HttpGet("courses/{id}/comments")]
+    [HttpGet("api/courses/{id}/comments")]
     public async Task<ActionResult<IEnumerable<CommentDto>>> GetCommentsByCourseId(Guid id)
     {
         var currentUserName = ResolveCurrentUserDisplayName();
@@ -39,7 +39,7 @@ public class CommentsController(ICommentService commentService) : ControllerBase
         return Ok(comments);
     }
 
-    [HttpDelete("courses/{courseId}/comments/{id}")]
+    [HttpDelete("api/courses/{courseId}/comments/{id}")]
     public async Task<ActionResult> DeleteComment(Guid courseId, Guid id)
     {
         var currentUserName = ResolveCurrentUserDisplayName();
@@ -52,14 +52,14 @@ public class CommentsController(ICommentService commentService) : ControllerBase
         return NoContent();
     }
 
-    [HttpGet("comments/ban/durations")]
+    [HttpGet("api/comments/ban/durations")]
     public ActionResult<List<string>> GetBanDurations()
     {
         var durations = _commentService.GetBanDurations();
         return Ok(durations);
     }
 
-    [HttpPost("comments/ban")]
+    [HttpPost("api/comments/ban")]
     [Authorize(Policy = "ContentManagement")]
     public async Task<ActionResult> BanUser([FromBody] BanRequestDto request)
     {
