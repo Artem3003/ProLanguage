@@ -1,5 +1,4 @@
 import { Injectable, NgZone } from '@angular/core';
-import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 
@@ -17,13 +16,14 @@ export class GoogleAuthService {
 
   constructor(
     private authService: AuthService,
-    private router: Router,
     private ngZone: NgZone
   ) {}
 
   /**
-   * Initialize Google Sign-In for a button element
-   * @param buttonElement The button element to attach Google Sign-In
+   * Initialize and render the official Google Identity Services
+   * "Sign in with Google" button into the given element.
+   * Uses the ID-token credential flow (no popup / One Tap).
+   * @param buttonElement The element the Google button is rendered into
    * @param onSuccess Callback for successful login
    * @param onError Callback for login error
    */
@@ -58,73 +58,32 @@ export class GoogleAuthService {
   }
 
   /**
-   * Trigger Google One Tap prompt
-   * @param onSuccess Callback for successful login
-   * @param onError Callback for login error
+   * Programmatically trigger the hidden official Google button so a custom-styled
+   * button can reuse the working ID-token flow (no OAuth popup fallback).
+   * Forwarding the click within the user's gesture keeps it a trusted interaction.
+   * @param containerElement The element the Google button was rendered into
+   * @param onError Callback if the Google button has not rendered yet
    */
-  promptGoogleSignIn(
-    onSuccess: () => void,
+  triggerGoogleSignIn(
+    containerElement: HTMLElement,
     onError: (error: string) => void
   ): void {
-    if (typeof google === 'undefined') {
-      console.error('Google Identity Services not loaded');
-      onError('Google Sign-In is not available. Please try again later.');
+    const googleButton =
+      containerElement.querySelector<HTMLElement>('div[role="button"]') ??
+      containerElement.querySelector<HTMLElement>('[role="button"]') ??
+      (containerElement.firstElementChild as HTMLElement | null);
+
+    if (!googleButton) {
+      console.error('Google Sign-In button is not rendered yet');
+      onError('Google Sign-In is not ready yet. Please try again in a moment.');
       return;
     }
 
-    google.accounts.id.initialize({
-      client_id: this.clientId,
-      callback: (response: GoogleUser) => {
-        this.handleCredentialResponse(response, onSuccess, onError);
-      },
-    });
-
-    google.accounts.id.prompt((notification: any) => {
-      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-        // Fallback: use popup flow
-        this.signInWithPopup(onSuccess, onError);
-      }
-    });
+    googleButton.click();
   }
 
   /**
-   * Sign in using OAuth 2.0 popup flow
-   */
-  private signInWithPopup(
-    onSuccess: () => void,
-    onError: (error: string) => void
-  ): void {
-    const client = google.accounts.oauth2.initTokenClient({
-      client_id: this.clientId,
-      scope: 'email profile openid',
-      callback: async (tokenResponse: any) => {
-        if (tokenResponse.access_token) {
-          // Get ID token using the access token
-          try {
-            const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-              headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
-            });
-            const userInfo = await response.json();
-
-            // For popup flow, we use the access_token approach
-            // Note: This is less secure than ID token flow, consider using ID token
-            this.ngZone.run(() => {
-              onError('Please use the Google button instead of popup.');
-            });
-          } catch (error) {
-            this.ngZone.run(() => {
-              onError('Failed to get user information from Google.');
-            });
-          }
-        }
-      },
-    });
-
-    client.requestAccessToken();
-  }
-
-  /**
-   * Handle the credential response from Google
+   * Handle the credential (ID token) response from the Google button.
    */
   private handleCredentialResponse(
     response: GoogleUser,

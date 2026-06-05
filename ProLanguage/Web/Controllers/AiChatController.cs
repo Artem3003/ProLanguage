@@ -1,8 +1,8 @@
-using System.Security.Claims;
 using Application.DTOs.AiChat;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Web.Extensions;
 
 namespace Web.Controllers;
 
@@ -19,7 +19,7 @@ public class AiChatController(IAiChatService aiChatService, ILogger<AiChatContro
     [ProducesResponseType(typeof(IEnumerable<AiChatConversationSummaryDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<AiChatConversationSummaryDto>>> GetConversations(CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
+        var userId = User.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
@@ -34,7 +34,7 @@ public class AiChatController(IAiChatService aiChatService, ILogger<AiChatContro
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<AiChatConversationMessagesDto>> GetConversationMessages(Guid conversationId, CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
+        var userId = User.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
@@ -57,7 +57,7 @@ public class AiChatController(IAiChatService aiChatService, ILogger<AiChatContro
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<AiChatResponseDto>> SendMessage([FromBody] AiChatRequestDto request, CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
+        var userId = User.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
@@ -94,7 +94,7 @@ public class AiChatController(IAiChatService aiChatService, ILogger<AiChatContro
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteConversation(Guid conversationId, CancellationToken cancellationToken)
     {
-        var userId = GetCurrentUserId();
+        var userId = User.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
@@ -109,11 +109,5 @@ public class AiChatController(IAiChatService aiChatService, ILogger<AiChatContro
         {
             return NotFound(new { message = ex.Message });
         }
-    }
-
-    private Guid? GetCurrentUserId()
-    {
-        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        return userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId) ? null : userId;
     }
 }

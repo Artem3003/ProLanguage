@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Prometheus;
+using Web.Extensions;
 
 namespace Web.Controllers;
 
@@ -138,9 +139,15 @@ public class CoursesController(ICourseService courseService, IOrderService order
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddToCart(Guid id)
     {
+        var userId = User.GetUserId();
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+
         try
         {
-            await _orderService.AddToCartAsync(id);
+            await _orderService.AddToCartAsync(userId.Value, id);
             return Ok();
         }
         catch (KeyNotFoundException)

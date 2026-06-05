@@ -26,7 +26,6 @@ export class RegisterComponent implements AfterViewInit {
   showPassword = false;
   showRepeatPassword = false;
   isLoading = false;
-  isGoogleLoading = false;
   isAppleLoading = false;
   errorMessage = '';
   fieldErrors: Record<string, string[]> = {};
@@ -53,21 +52,18 @@ export class RegisterComponent implements AfterViewInit {
   }
 
   onGoogleSignIn(): void {
-    this.isGoogleLoading = true;
     this.errorMessage = '';
-    this.googleAuthService.promptGoogleSignIn(
-      () => this.onGoogleSuccess(),
+    this.googleAuthService.triggerGoogleSignIn(
+      this.googleButtonRef.nativeElement,
       (error) => this.onGoogleError(error)
     );
   }
 
   private onGoogleSuccess(): void {
-    this.isGoogleLoading = false;
     this.router.navigate(['/courses']);
   }
 
   private onGoogleError(error: string): void {
-    this.isGoogleLoading = false;
     this.errorMessage = error;
   }
 

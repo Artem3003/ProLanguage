@@ -2,6 +2,7 @@ using Application.DTOs.Order;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Web.Extensions;
 
 namespace Web.Controllers;
 
@@ -14,61 +15,92 @@ public class OrdersController(IOrderService orderService) : ControllerBase
     private readonly IOrderService _orderService = orderService;
 
     /// <summary>
-    /// Get all paid and cancelled orders.
+    /// Get all paid and cancelled orders for the current user.
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<OrderDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<OrderDto>>> GetOrders()
     {
-        var orders = await _orderService.GetOrdersAsync();
+        var userId = User.GetUserId();
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+
+        var orders = await _orderService.GetOrdersAsync(userId.Value);
         return Ok(orders);
     }
 
     /// <summary>
-    /// Get order by ID.
+    /// Get one of the current user's orders by ID.
     /// </summary>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(OrderDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<OrderDto>> GetOrderById(Guid id)
     {
-        var order = await _orderService.GetOrderByIdAsync(id);
+        var userId = User.GetUserId();
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+
+        var order = await _orderService.GetOrderByIdAsync(userId.Value, id);
         return order == null ? NotFound() : Ok(order);
     }
 
     /// <summary>
-    /// Get order details (courses in the order).
+    /// Get order details (courses in the order) for one of the current user's orders.
     /// </summary>
     [HttpGet("{id:guid}/details")]
     [ProducesResponseType(typeof(IEnumerable<OrderDetailDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<OrderDetailDto>>> GetOrderDetails(Guid id)
     {
-        var details = await _orderService.GetOrderDetailsAsync(id);
+        var userId = User.GetUserId();
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+
+        var details = await _orderService.GetOrderDetailsAsync(userId.Value, id);
         return Ok(details);
     }
 
     /// <summary>
-    /// Get cart (open order).
+    /// Get the current user's cart (open order).
     /// </summary>
     [HttpGet("cart")]
     [ProducesResponseType(typeof(IEnumerable<CartItemDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<CartItemDto>>> GetCart()
     {
-        var cart = await _orderService.GetCartAsync();
+        var userId = User.GetUserId();
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+
+        var cart = await _orderService.GetCartAsync(userId.Value);
         return Ok(cart);
     }
 
     /// <summary>
-    /// Remove course from cart.
+    /// Remove course from the current user's cart.
     /// </summary>
     [HttpDelete("cart/{courseId:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RemoveFromCart(Guid courseId)
     {
+        var userId = User.GetUserId();
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+
         try
         {
-            await _orderService.RemoveFromCartAsync(courseId);
+            await _orderService.RemoveFromCartAsync(userId.Value, courseId);
             return NoContent();
         }
         catch (KeyNotFoundException)
@@ -89,7 +121,7 @@ public class OrdersController(IOrderService orderService) : ControllerBase
     }
 
     /// <summary>
-    /// Process payment.
+    /// Process payment for the current user's cart.
     /// </summary>
     [HttpPost("payment")]
     [ProducesResponseType(typeof(PaymentResponseDto), StatusCodes.Status200OK)]
@@ -97,9 +129,15 @@ public class OrdersController(IOrderService orderService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ProcessPayment([FromBody] PaymentRequestDto request)
     {
+        var userId = User.GetUserId();
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+
         try
         {
-            var result = await _orderService.ProcessPaymentAsync(request);
+            var result = await _orderService.ProcessPaymentAsync(userId.Value, request);
 
             // If Bank payment, return PDF
             return request.Method == "Bank" && result is byte[] pdfBytes

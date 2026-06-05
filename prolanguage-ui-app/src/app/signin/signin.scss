@@ -280,9 +280,13 @@
   color: #f5c518;
 }
 
-/* Hide the Google rendered button - we use our custom button */
+/* The official Google button is rendered here but kept off-screen;
+   the visible custom button forwards its click to it. (display:none would
+   make it non-interactive, so we move it off-screen instead.) */
 .google-signin-container {
-  display: none;
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
 }
 
 .social-btn:disabled {
