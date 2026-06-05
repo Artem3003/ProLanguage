@@ -64,10 +64,13 @@ services:
       - AzureOpenAI__ApiKey=${AZURE_OPENAI_API_KEY}
       - AzureOpenAI__DeploymentName=${AZURE_OPENAI_DEPLOYMENT_NAME:-gpt-5-mini}
       - JwtSettings__SecretKey=${JWT_SECRET_KEY}
+      - PaymentSettings__PaymentServiceUrl=http://payments.api:8080
     depends_on:
       sqlserver:
         condition: service_healthy
       azurite:
+        condition: service_started
+      payments.api:
         condition: service_started
 
   prolanguage.ui:
