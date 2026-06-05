@@ -280,13 +280,31 @@
   color: #f5c518;
 }
 
-/* The official Google button is rendered here but kept off-screen;
-   the visible custom button forwards its click to it. (display:none would
-   make it non-interactive, so we move it off-screen instead.) */
+/* The styled Google button and the real Google Identity Services button share
+   this wrapper; the GIS button is stretched, made transparent and overlaid on
+   top so a genuine user click reaches Google directly. */
+.google-btn-wrapper {
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+
+.google-btn-wrapper .social-btn {
+  margin-bottom: 0;
+}
+
 .google-signin-container {
   position: absolute;
-  top: -9999px;
-  left: -9999px;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.google-signin-container > div,
+.google-signin-container [role='button'],
+.google-signin-container iframe {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .social-btn:disabled {

@@ -37,24 +37,15 @@ export class SigninComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Initialize Google Sign-In button after view is ready
-    setTimeout(() => {
-      if (this.googleButtonRef?.nativeElement) {
-        this.googleAuthService.initializeGoogleSignIn(
-          this.googleButtonRef.nativeElement,
-          () => this.onGoogleSuccess(),
-          (error) => this.onGoogleError(error)
-        );
-      }
-    }, 100);
-  }
-
-  onGoogleSignIn(): void {
-    this.errorMessage = '';
-    this.googleAuthService.triggerGoogleSignIn(
-      this.googleButtonRef.nativeElement,
-      (error) => this.onGoogleError(error)
-    );
+    // Render the official Google button (overlaid on the styled button). The
+    // service waits for the GIS library to load before rendering.
+    if (this.googleButtonRef?.nativeElement) {
+      this.googleAuthService.initializeGoogleSignIn(
+        this.googleButtonRef.nativeElement,
+        () => this.onGoogleSuccess(),
+        (error) => this.onGoogleError(error)
+      );
+    }
   }
 
   private onGoogleSuccess(): void {
