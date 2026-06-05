@@ -64,7 +64,45 @@ jobs:
 
       - name: Deploy to Container App
         run: |
+          set -euo pipefail
+          IMAGE=${{ env.ACR_LOGIN_SERVER }}/${{ matrix.image }}:${{ github.sha }}
+          EXTRA_ARGS=()
+
+          # The web app calls the Payments app server-to-server. In Container Apps
+          # that hop goes over the Payments app's ingress FQDN on 443 (not :8080,
+          # not localhost), so point PaymentSettings__PaymentServiceUrl at it.
+          if [ "${{ matrix.app }}" = "prolanguage-web" ]; then
+            PAYMENTS_FQDN=$(az containerapp show \
+              -n prolanguage-payments \
+              -g "${{ env.RESOURCE_GROUP }}" \
+              --query "properties.configuration.ingress.fqdn" -o tsv)
+            if [ -z "$PAYMENTS_FQDN" ]; then
+              echo "ERROR: prolanguage-payments has no ingress FQDN. Enable ingress" \
+                   "(internal is enough) on it so the web app can reach it." >&2
+              exit 1
+            fi
+            echo "Routing payments to https://$PAYMENTS_FQDN"
+            EXTRA_ARGS+=(--set-env-vars "PaymentSettings__PaymentServiceUrl=https://$PAYMENTS_FQDN")
+          fi
+
+          # The auth app builds the emailed password-reset link from
+          # EmailSettings__FrontendUrl. Point it at the public UI app so links open
+          # the deployed site instead of localhost.
+          if [ "${{ matrix.app }}" = "prolanguage-auth" ]; then
+            UI_FQDN=$(az containerapp show \
+              -n prolanguage \
+              -g "${{ env.RESOURCE_GROUP }}" \
+              --query "properties.configuration.ingress.fqdn" -o tsv)
+            if [ -z "$UI_FQDN" ]; then
+              echo "ERROR: prolanguage (UI) has no ingress FQDN; cannot set the reset-link base URL." >&2
+              exit 1
+            fi
+            echo "Password-reset links will use https://$UI_FQDN"
+            EXTRA_ARGS+=(--set-env-vars "EmailSettings__FrontendUrl=https://$UI_FQDN")
+          fi
+
           az containerapp update \
             -n ${{ matrix.app }} \
-            -g ${{ env.RESOURCE_GROUP }} \
-            --image ${{ env.ACR_LOGIN_SERVER }}/${{ matrix.image }}:${{ github.sha }}
+            -g "${{ env.RESOURCE_GROUP }}" \
+            --image "$IMAGE" \
+            "${EXTRA_ARGS[@]}"
