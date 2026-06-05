@@ -32,12 +32,27 @@ export class GoogleAuthService {
     onSuccess: () => void,
     onError: (error: string) => void
   ): void {
-    if (typeof google === 'undefined') {
-      console.error('Google Identity Services not loaded');
-      onError('Google Sign-In is not available. Please try again later.');
-      return;
-    }
+    // The GIS script is loaded async/defer, so it may not be ready yet when the
+    // view initializes. Wait for it instead of failing on the first attempt.
+    this.whenGoogleReady(
+      () => this.renderButton(buttonElement, onSuccess, onError),
+      () => {
+        console.error('Google Identity Services failed to load');
+        onError('Google Sign-In is not available. Please try again later.');
+      }
+    );
+  }
 
+  /**
+   * Render the official Google button. It is overlaid transparently on top of the
+   * custom button (see component templates/styles) so a genuine user click reaches
+   * Google directly — programmatically clicking a hidden button is rejected by FedCM.
+   */
+  private renderButton(
+    buttonElement: HTMLElement,
+    onSuccess: () => void,
+    onError: (error: string) => void
+  ): void {
     google.accounts.id.initialize({
       client_id: this.clientId,
       callback: (response: GoogleUser) => {
@@ -58,28 +73,30 @@ export class GoogleAuthService {
   }
 
   /**
-   * Programmatically trigger the hidden official Google button so a custom-styled
-   * button can reuse the working ID-token flow (no OAuth popup fallback).
-   * Forwarding the click within the user's gesture keeps it a trusted interaction.
-   * @param containerElement The element the Google button was rendered into
-   * @param onError Callback if the Google button has not rendered yet
+   * Invoke onReady once the asynchronously-loaded GIS library is available,
+   * or onTimeout if it never loads within the polling window.
    */
-  triggerGoogleSignIn(
-    containerElement: HTMLElement,
-    onError: (error: string) => void
-  ): void {
-    const googleButton =
-      containerElement.querySelector<HTMLElement>('div[role="button"]') ??
-      containerElement.querySelector<HTMLElement>('[role="button"]') ??
-      (containerElement.firstElementChild as HTMLElement | null);
+  private whenGoogleReady(onReady: () => void, onTimeout: () => void): void {
+    const isReady = (): boolean =>
+      typeof google !== 'undefined' && !!google.accounts?.id;
 
-    if (!googleButton) {
-      console.error('Google Sign-In button is not rendered yet');
-      onError('Google Sign-In is not ready yet. Please try again in a moment.');
+    if (isReady()) {
+      onReady();
       return;
     }
 
-    googleButton.click();
+    const intervalMs = 100;
+    const timeoutMs = 5000;
+    let waited = 0;
+    const timer = setInterval(() => {
+      if (isReady()) {
+        clearInterval(timer);
+        onReady();
+      } else if ((waited += intervalMs) >= timeoutMs) {
+        clearInterval(timer);
+        onTimeout();
+      }
+    }, intervalMs);
   }
 
   /**
