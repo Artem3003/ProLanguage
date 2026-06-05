@@ -30,23 +30,20 @@ public class OrderService(
     private readonly IConfiguration _configuration = configuration;
     private readonly ILogger<OrderService> _logger = logger;
 
-    // Stub customer ID as per epic requirements
-    private static readonly Guid StubCustomerId = Guid.Parse("5aa1c97e-e6b3-497c-8e00-270e96aa0b63");
-
-    public async Task AddToCartAsync(Guid courseId)
+    public async Task AddToCartAsync(Guid customerId, Guid courseId)
     {
         var course = await _courseRepository.GetByIdAsync(courseId)
             ?? throw new KeyNotFoundException($"Course with ID {courseId} not found");
 
         // Get or create open order (cart)
-        var cart = await _orderRepository.GetOpenOrderByCustomerIdAsync(StubCustomerId);
+        var cart = await _orderRepository.GetOpenOrderByCustomerIdAsync(customerId);
 
         if (cart == null)
         {
             cart = new Order
             {
                 Id = Guid.NewGuid(),
-                CustomerId = StubCustomerId,
+                CustomerId = customerId,
                 Status = OrderStatus.Open,
                 Date = DateTime.UtcNow,
             };
@@ -81,18 +78,18 @@ public class OrderService(
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task RemoveFromCartAsync(Guid courseId)
+    public async Task RemoveFromCartAsync(Guid customerId, Guid courseId)
     {
-        var cart = await _orderRepository.GetOpenOrderByCustomerIdAsync(StubCustomerId)
+        var cart = await _orderRepository.GetOpenOrderByCustomerIdAsync(customerId)
             ?? throw new KeyNotFoundException("Cart not found");
 
         await _orderCourseRepository.DeleteByOrderAndCourseAsync(cart.Id, courseId);
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<CartItemDto>> GetCartAsync()
+    public async Task<IEnumerable<CartItemDto>> GetCartAsync(Guid customerId)
     {
-        var cart = await _orderRepository.GetOpenOrderByCustomerIdAsync(StubCustomerId);
+        var cart = await _orderRepository.GetOpenOrderByCustomerIdAsync(customerId);
 
         if (cart == null)
         {
@@ -103,20 +100,30 @@ public class OrderService(
         return _mapper.Map<IEnumerable<CartItemDto>>(items);
     }
 
-    public async Task<IEnumerable<OrderDto>> GetOrdersAsync()
+    public async Task<IEnumerable<OrderDto>> GetOrdersAsync(Guid customerId)
     {
-        var orders = await _orderRepository.GetPaidAndCancelledOrdersByCustomerIdAsync(StubCustomerId);
+        var orders = await _orderRepository.GetPaidAndCancelledOrdersByCustomerIdAsync(customerId);
         return _mapper.Map<IEnumerable<OrderDto>>(orders);
     }
 
-    public async Task<OrderDto?> GetOrderByIdAsync(Guid orderId)
+    public async Task<OrderDto?> GetOrderByIdAsync(Guid customerId, Guid orderId)
     {
         var order = await _orderRepository.GetByIdAsync(orderId);
-        return order == null ? null : _mapper.Map<OrderDto>(order);
+
+        // Only the owner may view an order; otherwise treat it as not found.
+        return order == null || order.CustomerId != customerId
+            ? null
+            : _mapper.Map<OrderDto>(order);
     }
 
-    public async Task<IEnumerable<OrderDetailDto>> GetOrderDetailsAsync(Guid orderId)
+    public async Task<IEnumerable<OrderDetailDto>> GetOrderDetailsAsync(Guid customerId, Guid orderId)
     {
+        var order = await _orderRepository.GetByIdAsync(orderId);
+        if (order == null || order.CustomerId != customerId)
+        {
+            throw new KeyNotFoundException($"Order with ID {orderId} not found.");
+        }
+
         var items = await _orderCourseRepository.GetByOrderIdAsync(orderId);
         return _mapper.Map<IEnumerable<OrderDetailDto>>(items);
     }
@@ -149,9 +156,9 @@ public class OrderService(
         };
     }
 
-    public async Task<object> ProcessPaymentAsync(PaymentRequestDto request)
+    public async Task<object> ProcessPaymentAsync(Guid customerId, PaymentRequestDto request)
     {
-        var cart = await _orderRepository.GetOpenOrderByCustomerIdAsync(StubCustomerId)
+        var cart = await _orderRepository.GetOpenOrderByCustomerIdAsync(customerId)
             ?? throw new KeyNotFoundException("Cart not found");
 
         if (cart.OrderCourses.Count == 0)
@@ -233,7 +240,7 @@ public class OrderService(
             {
                 var paymentRequest = new
                 {
-                    UserId = StubCustomerId,
+                    UserId = cart.CustomerId,
                     CourseId = cart.OrderCourses.FirstOrDefault()?.CourseId,
                     Amount = (decimal)totalSum,
                     Currency = "USD",
@@ -270,7 +277,7 @@ public class OrderService(
                         {
                             return new PaymentResponseDto
                             {
-                                UserId = StubCustomerId,
+                                UserId = cart.CustomerId,
                                 OrderId = cart.Id,
                                 PaymentDate = DateTime.UtcNow,
                                 Sum = totalSum,
@@ -317,7 +324,7 @@ public class OrderService(
             {
                 var paymentRequest = new
                 {
-                    UserId = StubCustomerId,
+                    UserId = cart.CustomerId,
                     CourseId = cart.OrderCourses.FirstOrDefault()?.CourseId,
                     Amount = (decimal)totalSum,
                     Currency = "USD",
@@ -357,7 +364,7 @@ public class OrderService(
                         {
                             return new PaymentResponseDto
                             {
-                                UserId = StubCustomerId,
+                                UserId = cart.CustomerId,
                                 OrderId = cart.Id,
                                 PaymentDate = DateTime.UtcNow,
                                 Sum = totalSum,
@@ -403,7 +410,7 @@ public class OrderService(
         content.AppendLine("0 -30 Td");
         content.AppendLine($"(Invoice Number: INV-{cart.Id.ToString()[..8].ToUpper(System.Globalization.CultureInfo.CurrentCulture)}) Tj");
         content.AppendLine("0 -20 Td");
-        content.AppendLine($"(User ID: {StubCustomerId}) Tj");
+        content.AppendLine($"(User ID: {cart.CustomerId}) Tj");
         content.AppendLine("0 -20 Td");
         content.AppendLine($"(Order ID: {cart.Id}) Tj");
         content.AppendLine("0 -20 Td");

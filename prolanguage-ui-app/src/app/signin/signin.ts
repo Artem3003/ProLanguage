@@ -22,7 +22,6 @@ export class SigninComponent implements AfterViewInit {
   rememberMe = true;
   showPassword = false;
   isLoading = false;
-  isGoogleLoading = false;
   isAppleLoading = false;
   errorMessage = '';
   private returnUrl = '/courses';
@@ -51,21 +50,18 @@ export class SigninComponent implements AfterViewInit {
   }
 
   onGoogleSignIn(): void {
-    this.isGoogleLoading = true;
     this.errorMessage = '';
-    this.googleAuthService.promptGoogleSignIn(
-      () => this.onGoogleSuccess(),
+    this.googleAuthService.triggerGoogleSignIn(
+      this.googleButtonRef.nativeElement,
       (error) => this.onGoogleError(error)
     );
   }
 
   private onGoogleSuccess(): void {
-    this.isGoogleLoading = false;
     this.router.navigate([this.returnUrl]);
   }
 
   private onGoogleError(error: string): void {
-    this.isGoogleLoading = false;
     this.errorMessage = error;
   }
 
