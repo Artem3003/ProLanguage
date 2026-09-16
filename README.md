@@ -27,6 +27,10 @@ As a result of completing this task, you will receive an application that includ
 
 This project is built with the .NET 8 SDK and supports development using Visual Studio 2022 or Visual Studio Code with the .NET Core CLI.
 
+## Video 
+
+[![Watch the video](https://img.youtube.com/vi/De-QBlAi46Q/maxresdefault.jpg)](https://youtu.be/De-QBlAi46Q)
+
 ## Branching
 
 The application is divided into multiple epics. Each epic corresponds to a feature or major module and is implemented in a separate branch with its own `epic-##.md` description file.
